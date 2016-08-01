@@ -25,7 +25,8 @@ function [ c, ceq ] = slip_constraints( x )
         % The inertia of the mass around the toe, assuming a point mass
         toe_inertia = mass * r(i);
         
-        rddot = (spring * (ra(i)-r(i)) + damp * (radot(i)-rdot(i))) / mass;
+        rddot = (spring * (ra(i) - r(i)) + damp * (radot(i) - rdot(i)) ...
+                 - mass * gravity * sin(phi(i))) / mass;
         phiddot = (mass*gravity*cos(phi(i)) - hiptorque(i)) / hip_inertia;
         thetaddot = -hiptorque(i) / toe_inertia;
         
@@ -35,9 +36,10 @@ function [ c, ceq ] = slip_constraints( x )
         ceq(8*(i-1)+8) = thetadot(i+1)-(thetadot(i)+thetaddot*delta_time);
     end
     
-    ceq=[ceq; r(1) - 1        ; rdot(1)     ; ra(1) - 1  ; radot(1); ...
-              phi(1) - pi/2   ; phidot(1)   ; theta(1)   ; thetadot(1); ...
-              r(end) - 0.8    ; rdot(end)   ; ...
-              phi(end) - pi/2 ; phidot(end) ; theta(end) ; thetadot(end)];
+    %ceq=[ceq; r(1) - 1        ; rdot(1)     ; ra(1) - 1  ; radot(1); ...
+    %          phi(1) - pi/2   ; phidot(1)   ; theta(1)   ; thetadot(1); ...
+    %          r(end) - 0.8    ; rdot(end)   ; ...
+    %          phi(end) - pi/2 ; phidot(end) ; theta(end) ; thetadot(end)];
+    ceq = [ceq; r(1) - 1; r(end) - 0.8];
 end
 
