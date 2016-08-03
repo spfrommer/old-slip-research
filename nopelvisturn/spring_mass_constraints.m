@@ -53,5 +53,5 @@ function [ c, ceq ] = spring_mass_constraints( x )
     % Constrain initial position to be one and velocity to be zero
     ceq = [ceq; lengths(1) - 1; lengthdirs(1); actlengths(1) - 1; actlengthdirs(1); phis(1); phidirs(1)];
     % Constrain end position to 1 and end velocity to 0
-    ceq = [ceq; lengths(end) - 0.5; lengthdirs(end); phis(end)-pi/2; phidirs(end)];
+    ceq = [ceq; lengths(end) - 1; lengthdirs(end); phis(end)-pi/2; phidirs(end)];
 end
