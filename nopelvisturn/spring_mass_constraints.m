@@ -16,13 +16,19 @@ function [ c, ceq ] = spring_mass_constraints( x )
     hiptorques      = x(2 + gridN * 7 : end);
     
     ceq = ones(6 * (gridN - 1), 1);
+    
+    % What the state should be at the end of the time interval
+    x_n = [lengths(1);    lengthdirs(1); ...
+           actlengths(1); actlengthdirs(1); ...
+           phis(1);       phidirs(1)];
+    toe_inertia_n = mass * lengths(1);
+    B_n = [0; -mass * gravity * sin(phis(1)); 0; actlengthddirs(1); 0;
+         (-mass * gravity * lengths(1) * cos(phis(1)) + hiptorques(1)) / (toe_inertia_n)];
     for i = 1 : gridN-1
         % The inertia of the mass around the toe, assuming a point mass
-        toe_inertia = mass * lengths(i);
         toe_inertia_n = mass * lengths(i+1);
         % The state at the beginning of the time interval
-        x_i = [lengths(i); lengthdirs(i); actlengths(i); ...
-               actlengthdirs(i); phis(i); phidirs(i)];
+        x_i = x_n;
         % What the state should be at the end of the time interval
         x_n = [lengths(i+1);    lengthdirs(i+1); ...
                actlengths(i+1); actlengthdirs(i+1); ...
@@ -34,16 +40,15 @@ function [ c, ceq ] = spring_mass_constraints( x )
              0 0 0 0 0 0;
              0 0 0 0 0 1;
              0 0 0 0 0 0];
-        Bi = [0; -mass * gravity * sin(phis(i)); 0; actlengthddirs(i); 0;
-            (-mass * gravity * cos(phis(i)) + hiptorques(i)) / toe_inertia];
-        Bn = [0; -mass * gravity * sin(phis(i+1)); 0; actlengthddirs(i+1); 0;
-            (-mass * gravity * cos(phis(i+1)) + hiptorques(i+1)) / toe_inertia_n];
+        B_i = B_n;
+        B_n = [0; -mass * gravity * sin(phis(i+1)); 0; actlengthddirs(i+1); 0;
+            (-mass * gravity * lengths(i+1) * cos(phis(i+1)) + hiptorques(i+1)) / toe_inertia_n];
         
         % The time derivative of the state at the beginning of the time
         % interval
-        xdot_i = A * x_i + Bi;
+        xdot_i = A * x_i + B_i;
         % The time derivative of the state at the end of the time interval
-        xdot_n = A * x_n + Bn;
+        xdot_n = A * x_n + B_n;
         % The end position of the time interval calculated using quadrature
         xend = x_i + delta_time * (xdot_i + xdot_n) / 2;
         % Constrain the end state of the current time interval to be
@@ -53,5 +58,5 @@ function [ c, ceq ] = spring_mass_constraints( x )
     % Constrain initial position to be one and velocity to be zero
     ceq = [ceq; lengths(1) - 1; lengthdirs(1); actlengths(1) - 1; actlengthdirs(1); phis(1); phidirs(1)];
     % Constrain end position to 1 and end velocity to 0
-    ceq = [ceq; lengths(end) - 1; lengthdirs(end); phis(end)-pi/2; phidirs(end)];
+    ceq = [ceq; phis(end)-pi/2];
 end

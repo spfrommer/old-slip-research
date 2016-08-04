@@ -1,5 +1,5 @@
 global gridN mass spring damp gravity
-gridN = 20;
+gridN = 40;
 mass = 10;
 spring = 50;
 damp = 1;
@@ -24,14 +24,15 @@ Aeq = [];
 Beq = [];
 % Lower bound the simulation time at zero seconds, and bound the
 % accelerations between -10 and 30
-lb = [0;   ones(gridN, 1) * 0;    ones(gridN * 3, 1) * -Inf; ones(gridN, 1) * -5000;
-           ones(gridN, 1) * -Inf; ones(gridN, 1) * -Inf;     ones(gridN, 1) * -250];
-ub = [Inf; ones(gridN, 1) * 1;    ones(gridN * 3, 1) * Inf;  ones(gridN, 1) * 5000;
-           ones(gridN, 1) * Inf;  ones(gridN, 1) * Inf;      ones(gridN, 1) * 250];
+lb = [0.9;   ones(gridN, 1) * 0.1;    ones(gridN * 3, 1) * -Inf; ones(gridN, 1) * -4000;
+           ones(gridN, 1) * -Inf; ones(gridN, 1) * -Inf;     ones(gridN, 1) * -20];
+ub = [Inf; ones(gridN, 1) * 1;    ones(gridN * 3, 1) * Inf;  ones(gridN, 1) * 4000;
+           ones(gridN, 1) * Inf;  ones(gridN, 1) * Inf;      ones(gridN, 1) * 20];
 % Options for fmincon
 options = optimoptions(@fmincon, 'TolFun', 0.00000001, 'MaxIter', 10000, ...
                        'MaxFunEvals', 1000000, 'Display', 'iter', ...
-                       'DiffMinChange', 0.000001, 'Algorithm', 'sqp');
+                       'DiffMinChange', 0.001, 'Algorithm', 'sqp', ...
+                       'StepTolerance', 1e-14);
 % Solve for the best simulation time + control input
 optimal = fmincon(time_min, x0, A, b, Aeq, Beq, lb, ub, ...
               @spring_mass_constraints, options);
@@ -95,12 +96,12 @@ if true
     ylabel('Length (m)');
     figure(7);
     plot(times, phis);
-    title('Phi');
+    title('Leg angle with ground');
     xlabel('Time (s)');
     ylabel('Leg angle with ground');
     figure(8);
     plot(times, phidirs);
-    title('Phidot');
+    title('Time derivative of leg angle with ground');
     xlabel('Time (s)');
     ylabel('Time derivative of leg angle with ground');
     figure(9);
