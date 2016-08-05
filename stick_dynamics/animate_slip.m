@@ -1,8 +1,6 @@
-function [] = render( sim_time, lengths, phis )
+function [] = animate_slip( sim_time, lengths, phis )
     time = 0;
-    dt = 0.04;
-    while time < sim_time
-        loopstart = tic();
+    while time <= sim_time
         len = lengths(floor((time / sim_time) * length(lengths)) + 1);
         phi = phis(floor((time / sim_time) * length(phis)) + 1);
         ncoils = 10;
@@ -39,9 +37,8 @@ function [] = render( sim_time, lengths, phis )
         % Set the axis
         axis([-2, 2, -2, 2]);
         axis square;
-        elapsed = toc(loopstart);
-        pause(dt - elapsed);
-        time = time + dt;
+        pause(0.01);
+        time = time + 0.01;
     end
 end
 
