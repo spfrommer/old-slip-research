@@ -1,4 +1,4 @@
-function [] = animate_slip( sim_time, lengths, phis )
+function [] = animate_slip( sim_time, lengths, phis, draw_vector )
     time = 0;
     while time <= sim_time
         len = lengths(floor((time / sim_time) * length(lengths)) + 1);
@@ -32,13 +32,20 @@ function [] = animate_slip( sim_time, lengths, phis )
         Y = Y + sin(pi-phi) * len;
         fill(X, Y, [1 .5 0]);
         
+        for col = 1 : size(draw_vector, 2)
+            page = floor((time / sim_time) * size(draw_vector, 3)) + 1;
+            dv = draw_vector(:, col, page);
+            line([dv(1) dv(1)+dv(3)], [dv(2) dv(2)+dv(4)]);
+        end
+        
         % Draw simulation time text
         text(0, 1.8, sprintf('Simulation time: %f', time), 'FontSize', 13);
         % Set the axis
         axis([-2, 2, -2, 2]);
         axis square;
-        pause(0.01);
-        time = time + 0.01;
+        axis manual;
+        pause(0.03);
+        time = time + 0.05;
     end
 end
 

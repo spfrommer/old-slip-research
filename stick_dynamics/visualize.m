@@ -5,7 +5,7 @@ times = 0 : delta_time : sim_time - delta_time;
 % Unpack the vector
 [length, lengthdot, actlength, actlengthdot, actlengthddot, phi, phidot, ...
     hiptorque] = unpack(optimal);
-[c, ceq] = slip_constraints(optimal);
+[c, ceq] = slip_constraints(optimal, true);
 
 fig = figure(1);
 set(fig, 'Position', [100, 200, 600, 550]);
@@ -15,11 +15,11 @@ toolbar.HandleVisibility = 'off';
 % Read an image
 [img,map] = imread('rewind.gif');
 p = uipushtool(toolbar, 'TooltipString', 'Replay animation', ...
-               'ClickedCallback', 'animate_slip(sim_time, length, phi)');
+               'ClickedCallback', 'animate_slip(sim_time, length, phi, draw_vectors)');
 icon = ind2rgb(img, map);
 p.CData = icon;
 
-animate_slip(sim_time, length, phi);
+animate_slip(sim_time, length, phi, draw_vectors);
 pause(2);
 if false
     % Make the plots

@@ -1,10 +1,21 @@
-function [ c, ceq ] = slip_constraints( x )
+function [ c, ceq ] = slip_constraints( x, animate )
     global gridN mass spring damp gravity
+    
     % No nonlinear inequality constraint needed
     c = [];
     % Calculate the timestep
     sim_time = x(1);
     delta_time = sim_time / gridN;
+    
+    if ~exist('animate', 'var')
+        animate = false;
+    end
+    
+    if animate
+        draw_vectors = zeros(4, 1, gridN - 1);
+    end
+        
+    
     % Unpack the vector
     [length, lengthdot, actlength, actlengthdot, actlengthddot, phi, phidot, ...
         hiptorque] = unpack(x);
@@ -36,6 +47,13 @@ function [ c, ceq ] = slip_constraints( x )
                actlength(i+1); actlengthdot(i+1); ...
                phi(i+1);       phidot(i+1)];
         B_i = B_n;
+        if animate
+            mass_x = -cos(phi(i)) * length(i);
+            mass_y = sin(phi(i)) * length(i);
+            draw_vectors(:, 1, i) = [mass_x; mass_y; ...
+                0; -1];
+        end
+            
         B_n = [0; -mass * gravity * sin(phi(i+1)); 0; actlengthddot(i+1); 0;
             (-mass * gravity * length(i+1) * cos(phi(i+1)) + hiptorque(i+1)) / toe_inertia_n];
         
@@ -49,6 +67,9 @@ function [ c, ceq ] = slip_constraints( x )
         % Constrain the end state of the current time interval to be
         % equal to the starting state of the next time interval
         ceq((i-1)*6+1 : i*6) = x_n - xend;
+    end
+    if animate
+        assignin('base', 'draw_vectors', draw_vectors);
     end
     % Add initial constraints
     ceq = [ceq; length(1) - 1; lengthdot(1); actlength(1) - 1; ...
