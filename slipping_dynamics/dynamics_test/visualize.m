@@ -1,11 +1,11 @@
-xtoe        = x(:, 1);
-xtoedot     = x(:, 2);
-len         = x(:, 3);
-lendot      = x(:, 4);
-actlen      = x(:, 5);
-actlendot   = x(:, 6);
-phi         = x(:, 7);
-phidot      = x(:, 8);
+xtoe        = solution(:, 1);
+xtoedot     = solution(:, 2);
+x           = solution(:, 3);
+xdot        = solution(:, 4);
+y           = solution(:, 5);
+ydot        = solution(:, 6);
+actlen      = solution(:, 7);
+actlendot   = solution(:, 8);
 
 fig = figure(1);
 set(fig, 'Position', [100, 200, 600, 550]);
@@ -15,11 +15,11 @@ toolbar.HandleVisibility = 'off';
 % Read an image
 [img,map] = imread('rewind.gif');
 p = uipushtool(toolbar, 'TooltipString', 'Replay animation', ...
-               'ClickedCallback', 'animate_slip(times, xtoe, len, phi)');
+               'ClickedCallback', 'animate_slip(times, xtoe, x, y)');
 icon = ind2rgb(img, map);
 p.CData = icon;
 
-animate_slip(times, xtoe, len, phi);
+animate_slip(times, xtoe, x, y);
 pause(2);
 if false
     % Make the plots

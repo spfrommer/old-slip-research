@@ -1,4 +1,4 @@
-function [] = animate_slip( times, xtoes, lengths, phis )
+function [] = animate_slip( times, xtoes, xs, ys )
     time = 0;
     % Initialize the figure
     figure(1);
@@ -14,14 +14,14 @@ function [] = animate_slip( times, xtoes, lengths, phis )
     
     % Draw debug text
     time_text = text(0, 1.8, sprintf('Simulation time: %f', time), 'FontSize', 13);
-    len_text = text(0, 1.6, sprintf('len: %f', lengths(1)), 'FontSize', 13);
+    len_text = text(0, 1.6, sprintf('len: %f', 0), 'FontSize', 13);
     while time <= times(end)
         ti = 1;
         while times(ti) < time
             ti = ti + 1;
         end
-        len = lengths(ti);
-        phi = phis(ti);
+        len = sqrt((xs(ti)-xtoes(ti))^2 + ys(ti)^2);
+        phi = mod(atan2(ys(ti), xs(ti)-xtoes(ti)), 2 * pi);
         xtoe = xtoes(ti);
         ncoils = 10;
         coilres = 2;
@@ -31,7 +31,7 @@ function [] = animate_slip( times, xtoes, lengths, phis )
         % Rotate spring_x and spring_y
         spring_mat = [spring_x; spring_y];
         center = repmat([0; 0], 1, length(spring_x));
-        R = [cos(pi/2-phi) -sin(pi/2-phi); sin(pi/2-phi) cos(pi/2-phi)];
+        R = [cos(phi-pi/2) -sin(phi-pi/2); sin(phi-pi/2) cos(phi-pi/2)];
         rot_mat = R * (spring_mat - center) + center;
         spring_x = rot_mat(1,:);
         spring_y = rot_mat(2,:);
@@ -51,8 +51,8 @@ function [] = animate_slip( times, xtoes, lengths, phis )
         
         % Draw hip/pelvis
         [X,Y] = pol2cart(linspace(0, 2 * pi, 100), ones(1, 100) * 0.1);
-        X = X + cos(pi-phi) * len + xtoe;
-        Y = Y + sin(pi-phi) * len;
+        X = X + cos(phi) * len + xtoe;
+        Y = Y + sin(phi) * len;
         hip_circle = fill(X, Y, [1 .5 0]);
         
         time_text.String = sprintf('Simulation time: %f', time);
@@ -65,7 +65,7 @@ function [] = animate_slip( times, xtoes, lengths, phis )
         axis square;
         axis manual;
         pause(0.03);
-        time = time + 0.01;
+        time = time + 0.03;
     end
 end
 
