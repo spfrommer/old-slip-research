@@ -3,8 +3,8 @@ function [ xdot ] = dynamics( t, x )
     xcell = num2cell(x');
     [xtoe, xtoedot, x, xdot, y, ydot, ra, radot] = ...
         deal(xcell{:});
-    hiptorque = 0;
-    raddot = 0;
+    hiptorque = 28;
+    raddot = -0.1;
     
     r = sqrt((x - xtoe)^2 + y^2);
     rdot = ((x-xtoe)*(xdot-xtoedot)+y*ydot)/(sqrt((x - xtoe)^2 + y^2));
@@ -12,12 +12,14 @@ function [ xdot ] = dynamics( t, x )
     fs = spring * (ra - r) + damp * (radot - rdot);
     ft = hiptorque / r;
     fg = masship * gravity;
-    ff = friction * tanh(xtoedot * 50) * smoothzero(fs * sin(phi) - ...
-                    ft * sin(phi+pi/2) - masstoe*gravity);
     
-    xddot = (1/masship) * (fs*cos(phi) + ft * cos(phi - pi/2));
-    yddot = (1/masship) * (fs*sin(phi) + ft * sin(phi - pi/2) - fg);
-    xtoeddot = (1/masstoe) * (-fs*cos(phi) - ft*cos(phi + pi/2) - ff);
+    ff = -friction * tanh(xtoedot * 50) * smoothzero(fs * sin(phi) - ...
+                    ft * cos(phi) + masstoe*gravity);
+    
+    xddot = (1/masship) * (fs*cos(phi) + ft * sin(phi));
+    yddot = (1/masship) * (fs*sin(phi) + ft * (-cos(phi)) - fg);
+    xtoeddot = (1/masstoe) * (-fs*cos(phi) - ft*sin(phi) + ff);
+
     
     xdot = [xtoedot; xtoeddot; xdot; xddot; ydot; yddot; ...
             radot; raddot];

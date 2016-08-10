@@ -65,7 +65,7 @@ function [] = animate_slip( times, xtoes, xs, ys )
         axis square;
         axis manual;
         pause(0.03);
-        time = time + 0.03;
+        time = time + 0.01;
     end
 end
 
