@@ -1,9 +1,11 @@
-global gridN mass spring damp gravity
-gridN = 40;     % Number of grid points during stance phase
-mass = 10;      % Mass of body in kilograms
-spring = 50;    % Spring coefficient
+global gridN masship masstoe spring damp gravity friction
+gridN = 20;     % Number of grid points during stance phase
+masship = 10;      % Mass of body in kilograms
+masstoe = 2;       % Mass of the toe in kilograms
+spring = 400;    % Spring coefficient
 damp = 1;       % Damping coefficient
 gravity = 9.81; % Gravity (m/s^2)
+friction = 0;   % Friction between toe and ground
 
 tic
 % Minimize the square of the simulation time
@@ -28,7 +30,7 @@ Beq = [];
 % Options for fmincon
 options = optimoptions(@fmincon, 'TolFun', 0.00000001, 'MaxIter', 10000, ...
                        'MaxFunEvals', 1000000, 'Display', 'iter', ...
-                       'DiffMinChange', 0.001, 'Algorithm', 'sqp', ...
+                       'DiffMinChange', 0.0001, 'Algorithm', 'sqp', ...
                        'StepTolerance', 1e-13);
 % Solve the optimization problem
 optimal = fmincon(time_min, x0, A, b, Aeq, Beq, lb, ub, ...

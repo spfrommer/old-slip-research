@@ -1,8 +1,26 @@
-function [] = animate_slip( sim_time, lengths, phis, draw_vector )
+function [] = animate_slip( sim_time, xtoes, xs, ys )
+    global gridN
     time = 0;
+    % Initialize the figure
+    figure(1);
+    clf;
+    % Make all the plots draw to the same figure
+    hold on;
+    % Draw ground
+    patch([-100 100 100 -100], [0 0 -2 -2], [0 0.5 0]);
+    % Initialize the spring plot
+    spring_plot = plot(0, 0);
+    % Initialize the hip circle fill
+    hip_circle = [];
+    
+    % Draw debug text
+    time_text = text(0, 1.8, sprintf('Simulation time: %f', time), 'FontSize', 13);
+    len_text = text(0, 1.6, sprintf('len: %f', 0), 'FontSize', 13);
     while time <= sim_time
-        len = lengths(floor((time / sim_time) * length(lengths)) + 1);
-        phi = phis(floor((time / sim_time) * length(phis)) + 1);
+        ti = floor((time / sim_time) * gridN) + 1;
+        len = sqrt((xs(ti)-xtoes(ti))^2 + ys(ti)^2);
+        phi = mod(atan2(ys(ti), xs(ti)-xtoes(ti)), 2 * pi);
+        xtoe = xtoes(ti);
         ncoils = 10;
         coilres = 2;
         spring_y = linspace(0, len, (4*coilres)*ncoils+1);
@@ -11,41 +29,38 @@ function [] = animate_slip( sim_time, lengths, phis, draw_vector )
         % Rotate spring_x and spring_y
         spring_mat = [spring_x; spring_y];
         center = repmat([0; 0], 1, length(spring_x));
-        R = [cos(pi/2-phi) -sin(pi/2-phi); sin(pi/2-phi) cos(pi/2-phi)];
+        R = [cos(phi-pi/2) -sin(phi-pi/2); sin(phi-pi/2) cos(phi-pi/2)];
         rot_mat = R * (spring_mat - center) + center;
-        spring_x = rot_mat(1,:);
+        spring_x = rot_mat(1,:) + xtoe;
         spring_y = rot_mat(2,:);
         
-        % Specify the figure to draw to
-        figure(1);
-        % Clear the figure
-        clf;
-        % Make all the plots draw to the same figure
-        hold on;
-        % Draw ground
-        patch([-2 2 2 -2], [0 0 -2 -2], [0 0.5 0]);
-        % Draw spring
-        plot(spring_x, spring_y, 'k');
-        % Draw hip/pelvis
-        [X,Y] = pol2cart(linspace(0, 2 * pi, 100), ones(1, 100) * 0.1);
-        X = X + cos(pi-phi) * len;
-        Y = Y + sin(pi-phi) * len;
-        fill(X, Y, [1 .5 0]);
-        
-        for col = 1 : size(draw_vector, 2)
-            page = floor((time / sim_time) * size(draw_vector, 3)) + 1;
-            dv = draw_vector(:, col, page);
-            line([dv(1) dv(1)+dv(3)], [dv(2) dv(2)+dv(4)]);
+         % Clear the hip circle
+        if ~isempty(hip_circle)
+            delete(hip_circle);
         end
         
-        % Draw simulation time text
-        text(0, 1.8, sprintf('Simulation time: %f', time), 'FontSize', 13);
+        % Draw spring
+        spring_plot.XData = spring_x;
+        spring_plot.YData = spring_y;
+        spring_plot.Color = 'k';
+        
+        % Draw hip/pelvis
+        [X,Y] = pol2cart(linspace(0, 2 * pi, 100), ones(1, 100) * 0.1);
+        X = X + cos(phi) * len + xtoe;
+        Y = Y + sin(phi) * len;
+        hip_circle = fill(X, Y, [1 .5 0]);
+        
+        time_text.String = sprintf('Simulation time: %f', time);
+        len_text.String = sprintf('len: %f', len);
+        
+        xpos = cos(pi-phi) * len + xtoe;
+        xpos = 0;
         % Set the axis
-        axis([-2, 2, -2, 2]);
+        axis([-3 + xpos, 3 + xpos, -3, 3]);
         axis square;
         axis manual;
         pause(0.03);
-        time = time + 0.05;
+        time = time + 0.01;
     end
 end
 
