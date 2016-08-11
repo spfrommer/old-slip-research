@@ -34,11 +34,11 @@ function [ c, ceq ] = slip_constraints( x, animate )
            actlength(1); actlengthdot(1); ...
            phi(1);       phidot(1)];
     % Rotational inertia of the point mass around the toe
-    toe_inertia_n = mass * length(1);
+    toe_inertia_n = mass * length(1)^2;
     B_n = [0; -mass * gravity * sin(phi(1)); 0; actlengthddot(1); 0;
          (-mass * gravity * length(1) * cos(phi(1)) + hiptorque(1)) / (toe_inertia_n)];
     for i = 1 : gridN-1
-        toe_inertia_n = mass * length(i+1);
+        toe_inertia_n = mass * length(i+1)^2;
         % The state at the beginning of the time interval, equal to the end
         % state of the last interation
         x_i = x_n;
