@@ -1,4 +1,5 @@
-function [ lb, ub ] = bounds(gridN)
+function [ lb, ub ] = bounds()
+global gridN
 time_min            = 0.1;
 time_max            = 5;
 min_xtoe            = -Inf;
@@ -17,8 +18,8 @@ min_ra              = -Inf;
 max_ra              = Inf;
 min_radot           = -Inf;
 max_radot           = Inf;
-min_raddot          = -100;
-max_raddot          = 100;
+min_raddot          = -1;
+max_raddot          = 1;
 min_hiptorque       = -100;
 max_hiptorque       = 100;
 

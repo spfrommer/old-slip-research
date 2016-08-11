@@ -1,5 +1,5 @@
 function [] = animate_slip( sim_time, xtoes, xs, ys )
-    global gridN
+    global gridN camfollow
     time = 0;
     % Initialize the figure
     figure(1);
@@ -53,14 +53,16 @@ function [] = animate_slip( sim_time, xtoes, xs, ys )
         time_text.String = sprintf('Simulation time: %f', time);
         len_text.String = sprintf('len: %f', len);
         
-        xpos = cos(pi-phi) * len + xtoe;
-        xpos = 0;
         % Set the axis
-        axis([-3 + xpos, 3 + xpos, -3, 3]);
+        if camfollow
+            axis([-3 + xpos, 3 + xpos, -3, 3]);
+        else
+            axis([-3, 3, -3, 3]);
+        end
         axis square;
         axis manual;
         pause(0.03);
-        time = time + 0.01;
+        time = time + 0.03;
     end
 end
 

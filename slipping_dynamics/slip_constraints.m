@@ -41,7 +41,8 @@ function [ c, ceq ] = slip_constraints( params )
     % Constrain the length of the leg at the end position
     c((i-1)*2+1   : i*2) = [compvars_n.r-maxlen; minlen-compvars_n.r];
     % Add initial constraints
-    ceq = [ceq; x(1); xdot(1); y(1)-1; ydot(1); xtoe(1); xtoedot(1)];
+    ceq = [ceq; x(1); xdot(1); y(1)-1; ydot(1); ...
+           xtoe(1); xtoedot(1); ra(1)-1; radot(1)];
     % Add end constraints
     ceq = [ceq; y(end)-2; xtoe(end); xtoedot(end)];
 end

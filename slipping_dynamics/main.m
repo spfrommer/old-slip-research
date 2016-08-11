@@ -1,5 +1,5 @@
-global gridN masship masstoe spring damp gravity friction minlen maxlen
-gridN = 10;     % Number of grid points during stance phase
+global gridN masship masstoe spring damp gravity friction minlen maxlen camfollow
+gridN = 20;     % Number of grid points during stance phase
 masship = 10;      % Mass of body in kilograms
 masstoe = 2;       % Mass of the toe in kilograms
 spring = 400;    % Spring coefficient
@@ -8,6 +8,7 @@ gravity = 9.81; % Gravity (m/s^2)
 friction = 0;   % Friction coefficient between toe and ground
 minlen = 0.1;   % Minimum length of the leg (m)
 maxlen = 2;     % Maximum length of the leg (m)
+camfollow = false; % Whether the camera should follow the SLIP
 
 tic
 % Minimize the square of the simulation time
@@ -28,7 +29,7 @@ b = [];
 Aeq = [];
 Beq = [];
 % Set up the bounds
-[lb, ub] = bounds(gridN);
+[lb, ub] = bounds();
 % Options for fmincon
 options = optimoptions(@fmincon, 'TolFun', 0.00000001, 'MaxIter', 10000, ...
                        'MaxFunEvals', 1000000, 'Display', 'iter', ...
