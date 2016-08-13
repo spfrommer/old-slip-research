@@ -1,14 +1,4 @@
-global gridN masship masstoe spring damp gravity friction minlen maxlen camfollow
-gridN = 20;     % Number of grid points during stance phase
-masship = 10;      % Mass of body in kilograms
-masstoe = 2;       % Mass of the toe in kilograms
-spring = 400;    % Spring coefficient
-damp = 1;       % Damping coefficient
-gravity = 9.81; % Gravity (m/s^2)
-friction = 0;   % Friction coefficient between toe and ground
-minlen = 0.1;   % Minimum length of the leg (m)
-maxlen = 2;     % Maximum length of the leg (m)
-camfollow = false; % Whether the camera should follow the SLIP
+simparams = SimParams();
 
 tic
 % Minimize the square of the simulation time
@@ -21,7 +11,7 @@ if exist('optimal','var')
     disp('Using previous solution as starting guess...');
     x0 = optimal;
 else
-    x0 = ones(gridN * 10 + 1, 1);
+    x0 = ones(simparams.gridN * 10 + 1, 1);
 end
 % No linear inequality or equality constraints
 A = [];
@@ -29,7 +19,7 @@ b = [];
 Aeq = [];
 Beq = [];
 % Set up the bounds
-[lb, ub] = bounds();
+[lb, ub] = bounds(simparams); 
 % Options for fmincon
 options = optimoptions(@fmincon, 'TolFun', 0.00000001, 'MaxIter', 10000, ...
                        'MaxFunEvals', 1000000, 'Display', 'iter', ...
@@ -37,6 +27,6 @@ options = optimoptions(@fmincon, 'TolFun', 0.00000001, 'MaxIter', 10000, ...
                        'StepTolerance', 1e-13);
 % Solve the optimization problem
 optimal = fmincon(time_min, x0, A, b, Aeq, Beq, lb, ub, ...
-              @slip_constraints, options);
+              @(x)slip_constraints(x, simparams), options);
 disp(sprintf('Finished in %f seconds', toc));
 visualize
