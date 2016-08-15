@@ -17,6 +17,8 @@ function [ c, ceq ] = slip_constraints( funparams, simparams )
     
     % Iterate over all the phases
     for p = 1 : simparams.phases
+        phasestart = (p - 1) * simparams.gridN + 1;
+        
         % Calculate the timestep for that specific phase
         sim_time = funparams(p);
         delta_time = sim_time / gridN;
@@ -26,13 +28,13 @@ function [ c, ceq ] = slip_constraints( funparams, simparams )
             end_state = state_n;
         end
         
-        state_n = [xtoe(1); xtoedot(1); x(1);  xdot(1); ...
-                   y(1);    ydot(1);    ra(1); radot(1)];
+        state_n = [xtoe(phasestart); xtoedot(phasestart); x(phasestart);  xdot(phasestart); ...
+                   y(phasestart);    ydot(phasestart);    ra(phasestart); radot(phasestart)];
         
         % Link balistic trajectory from end of last phase to this phase
         if p > 1
-            raend = ra(1);
-            phiend = mod(atan2(y(1), x(1) - xtoe(1)), 2 * pi);
+            raend = ra(phasestart);
+            phiend = mod(atan2(y(phasestart), x(phasestart) - xtoe(phasestart)), 2 * pi);
             [endstate, disc, ~] = ballistic_traj(end_state, raend, phiend, simparams);
             ceq(phaseconstseq+(p-2)*8+1 : phaseconstseq+(p-1)*8) = ...
                                          endstate - state_n;
@@ -47,8 +49,9 @@ function [ c, ceq ] = slip_constraints( funparams, simparams )
         % Offset in the inequality parameter vector due to phase
         pineqoffset = 2 * (gridN) * (p - 1);
         
-        [statedot_n, compvars_n] = dynamics(state_n, raddot(1), hiptorque(1), simparams);
-        for i = 1 : gridN - 1
+        [statedot_n, compvars_n] = dynamics(state_n, raddot(phasestart), ...
+                                        hiptorque(phasestart), simparams);
+        for i = phasestart : phasestart + gridN - 2
             % The state at the beginning of the time interval
             state_i = state_n;
             % What the state should be at the end of the time interval
