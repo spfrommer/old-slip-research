@@ -5,8 +5,12 @@ statecell = num2cell(startstate');
 [xtoe, xtoedot, x, xdot, y, ydot, ra, radot] = deal(statecell{:});
 yend = raend * sin(phiend);
 disc = ydot^2 - 2 * simparams.gravity * (yend - y);
-flight_time = (-1/simparams.gravity) * (-ydot - sqrt(disc));
-
+% Avoid returning complex results
+if disc >= 0
+    flight_time = (-1/simparams.gravity) * (-ydot - sqrt(disc));
+else
+    flight_time = 0;
+end
 xend = x + flight_time * xdot;
 xdotend = xdot;
 ydotend = ydot - simparams.gravity * flight_time;

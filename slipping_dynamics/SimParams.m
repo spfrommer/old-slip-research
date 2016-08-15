@@ -11,6 +11,7 @@ classdef SimParams < handle
         friction = 0;       % Friction coefficient between toe and ground
         minlen = 0.1;       % Minimum length of the leg (m)
         maxlen = 2;         % Maximum length of the leg (m)
+        ballisticdt = 0.03; % Time step during ballistic trajectory
     end
 end
 

@@ -2,7 +2,8 @@ simparams = SimParams();
 
 tic
 % Minimize the square of the simulation time
-time_min = @(x) costfun(x, simparams);
+%time_min = @(x) costfun(x, simparams);
+time_min = @(x) sum(x(1:simparams.phases));
 % The initial parameter guess; 1 second/phase, gridN lengths, gridN lengthdots,
 % gridN actuated lengths, gridN actlengthdots, gridN actlengthddots (input),
 % gridN leg angles, gridN leg angle dots, gridN hip torques, gridN toe x,
@@ -11,7 +12,7 @@ if exist('optimal','var')
     disp('Using previous solution as starting guess...');
     x0 = optimal;
 else
-    x0 = ones(simparams.gridN*simparams.phases*10 + simparams.phases,1);
+    x0 = ones(simparams.phases+simparams.gridN*simparams.phases*10,1);
 end
 % No linear inequality or equality constraints
 A = [];
