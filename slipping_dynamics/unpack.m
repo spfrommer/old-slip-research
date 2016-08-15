@@ -1,15 +1,17 @@
 function [ xtoe, xtoedot, x, xdot, y, ydot, ...
            ra, radot, raddot, hiptorque] = unpack( funparams, simparams )
-    gridN = simparams.gridN;
-    xtoe          = funparams(2             : 1 + gridN);
-    xtoedot       = funparams(2 + gridN     : 1 + gridN * 2);
-    x             = funparams(2 + gridN * 2 : 1 + gridN * 3);
-    xdot          = funparams(2 + gridN * 3 : 1 + gridN * 4);
-    y             = funparams(2 + gridN * 4 : 1 + gridN * 5);
-    ydot          = funparams(2 + gridN * 5 : 1 + gridN * 6);
-    ra            = funparams(2 + gridN * 6 : 1 + gridN * 7);
-    radot         = funparams(2 + gridN * 7 : 1 + gridN * 8);
-    raddot        = funparams(2 + gridN * 8 : 1 + gridN * 9);
-    hiptorque     = funparams(2 + gridN * 9 : 1 + gridN * 10);
+    p = simparams.phases;
+    cnt = simparams.gridN * p;
+    
+    xtoe          = funparams(p + 1           : p + cnt);
+    xtoedot       = funparams(p + 1 + cnt     : p + cnt * 2);
+    x             = funparams(p + 1 + cnt * 2 : p + cnt * 3);
+    xdot          = funparams(p + 1 + cnt * 3 : p + cnt * 4);
+    y             = funparams(p + 1 + cnt * 4 : p + cnt * 5);
+    ydot          = funparams(p + 1 + cnt * 5 : p + cnt * 6);
+    ra            = funparams(p + 1 + cnt * 6 : p + cnt * 7);
+    radot         = funparams(p + 1 + cnt * 7 : p + cnt * 8);
+    raddot        = funparams(p + 1 + cnt * 8 : p + cnt * 9);
+    hiptorque     = funparams(p + 1 + cnt * 9 : p + cnt * 10);
 end
 

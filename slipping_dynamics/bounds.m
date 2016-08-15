@@ -22,16 +22,18 @@ max_raddot          = 1;
 min_hiptorque       = -100;
 max_hiptorque       = 100;
 
-grid = ones(simparams.gridN, 1);
-lb = [time_min; grid * min_xtoe;        grid * min_xtoedot;
-                grid * min_x;           grid * min_xdot;
-                grid * min_y;           grid * min_ydot;
-                grid * min_ra;          grid * min_radot;
-                grid * min_raddot;      grid * min_hiptorque];
-ub = [time_max; grid * max_xtoe;        grid * max_xtoedot;
-                grid * max_x;           grid * max_xdot;
-                grid * max_y;           grid * max_ydot;
-                grid * max_ra;          grid * max_radot;
-                grid * max_raddot;      grid * max_hiptorque];
+grid = ones(simparams.gridN * simparams.phases, 1);
+lb = [time_min * simparams.phases;
+      grid*min_xtoe;   grid*min_xtoedot;
+      grid*min_x;      grid*min_xdot;
+      grid*min_y;      grid*min_ydot;
+      grid*min_ra;     grid*min_radot;
+      grid*min_raddot; grid*min_hiptorque;];
+ub = [time_max * simparams.phases;
+      grid*max_xtoe;   grid*max_xtoedot;
+      grid*max_x;      grid*max_xdot;
+      grid*max_y;      grid*max_ydot;
+      grid*max_ra;     grid*max_radot;
+      grid*max_raddot; grid*max_hiptorque];
 end
 

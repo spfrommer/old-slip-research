@@ -15,7 +15,6 @@ function [ statedot, compvars ] = dynamics( state, raddot, hiptorque, simparams 
     xddot = (1/simparams.masship) * (fs*cos(phi) + ft * sin(phi));
     yddot = (1/simparams.masship) * (fs*sin(phi) + ft * (-cos(phi)) - fg);
     xtoeddot = (1/simparams.masstoe) * (-fs*cos(phi) - ft*sin(phi) + ff);
-    
     statedot = [xtoedot; xtoeddot; xdot; xddot; ydot; yddot; ...
             radot; raddot];
         
