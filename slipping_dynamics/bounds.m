@@ -23,13 +23,13 @@ min_hiptorque       = -100;
 max_hiptorque       = 100;
 
 grid = ones(simparams.gridN * simparams.phases, 1);
-lb = [time_min * simparams.phases;
+lb = [ones(simparams.phases, 1) * time_min;
       grid*min_xtoe;   grid*min_xtoedot;
       grid*min_x;      grid*min_xdot;
       grid*min_y;      grid*min_ydot;
       grid*min_ra;     grid*min_radot;
       grid*min_raddot; grid*min_hiptorque;];
-ub = [time_max * simparams.phases;
+ub = [ones(simparams.phases, 1) * time_max;
       grid*max_xtoe;   grid*max_xtoedot;
       grid*max_x;      grid*max_xdot;
       grid*max_y;      grid*max_ydot;

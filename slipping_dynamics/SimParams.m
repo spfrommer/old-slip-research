@@ -1,6 +1,6 @@
 classdef SimParams < handle
     properties
-        phases = 1;         % Number of phases (steps)
+        phases = 2;         % Number of phases (steps)
         gridN = 10;         % Number of grid points during stance phase
         camfollow = false;  % Whether camera should follow the hip
         masship = 10;       % Mass of body in kilograms
