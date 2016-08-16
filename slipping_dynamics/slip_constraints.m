@@ -2,15 +2,17 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
     gridN = sp.gridN;
     
     % Preallocate the nonlinear inequality constraint vector
-    phaseconstsineq = 2 * (gridN) * sp.phases;
-    transconstsineq = 2 * (sp.phases - 1);
+    phaseconstsineq = 4 * (gridN) * sp.phases;
+    transconstsineq = 3 * (sp.phases - 1);
     c = zeros(phaseconstsineq + transconstsineq, 1);
+    disp(sprintf('Length of c: %d', length(c)));
     
     phaseconstseq = 8 * (sp.gridN - 1) * sp.phases;
     transconstseq = 8 * (sp.phases - 1);
     % Preallocate the nonlinear equality constraint vector
     ceq = zeros(phaseconstseq + transconstseq, 1);    
-
+    disp(sprintf('Length of ceq: %d', length(ceq)));
+    
     % Unpack the vector
     [xtoe, xtoedot, x, xdot, y, ydot, ra, radot, raddot, hiptorque] = ...
         unpack(funparams, sp);
@@ -35,19 +37,21 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
         if p > 1
             raend = ra(phasestart);
             phiend = mod(atan2(y(phasestart), x(phasestart) - xtoe(phasestart)), 2 * pi);
-            [endstate, disc, ~] = ballistic_traj(end_state, raend, phiend, sp);
+            [endstate, disc, flight_time] = ballistic_traj(end_state, raend, phiend, sp);
             ceq(phaseconstseq+(p-2)*8+1 : phaseconstseq+(p-1)*8) = ...
                                          endstate - state_n;
-            % Constrain ballistic trajectory to be feasible
-            c(phaseconstsineq + 2*(p-2)) = disc * -1;
+            % Constrain ballistic trajectory time to be non complex
+            c(phaseconstsineq + 3*(p-2) + 1) = disc * -1;
+            % Constrain ballistic trajectory time to be nonnegative
+            c(phaseconstsineq + 3*(p-2) + 2) = flight_time * -1;
             % Constrain spring force at tend of last phase to be negative
-            c(phaseconstsineq + 2*(p-2) + 1) = compvars_n.fs;
+            c(phaseconstsineq + 3*(p-2) + 3) = compvars_n.fs;
         end
             
         % Offset in the equality parameter vector due to phase
         peqoffset = 8 * (gridN - 1) * (p - 1);
         % Offset in the inequality parameter vector due to phase
-        pineqoffset = 2 * (gridN) * (p - 1);
+        pineqoffset = 4 * (gridN) * (p - 1);
         
         [statedot_n, compvars_n] = dynamics(state_n, raddot(phasestart), ...
                                         hiptorque(phasestart), sp);
@@ -72,18 +76,20 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
             ceq(peqoffset+(i-1)*8+1 : peqoffset+i*8) = state_n - stateend;
             
             % Constrain the length of the leg & spring force
-            c(pineqoffset+(i-1)*3+1 : pineqoffset+i*3) = ...
+            c(pineqoffset+(i-1)*4+1 : pineqoffset+i*4) = ...
                 [compvars_i.r-sp.maxlen; ...
-                 sp.minlen-compvars_i.r; -compvars_i.fs];
+                 sp.minlen-compvars_i.r; -compvars_i.fs; ...
+                 -y(i)];
         end
         % Constrain the length of the leg at the end position
-        c(pineqoffset+(gridN-1)*3+1 : pineqoffset+gridN*3) = ...
+        % No spring force constraint at end
+        c(pineqoffset+(gridN-1)*4+1 : pineqoffset+gridN*4) = ...
                                    [compvars_n.r - sp.maxlen; ...
                                     sp.minlen - compvars_n.r; ...
-                                    -1]; % No spring force constraint at end
+                                    -1; -y(phasestart+gridN-1)]; 
     end
     % Add first phase start constraints
-    ceq = [ceq; x(1); y(1) - 1; xtoe(1); xtoedot(1); ra(1) - 1; radot(1)];
+    ceq = [ceq; x(1); xtoe(1); xtoedot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; x(end) - 0.5; y(end) - 0.5; xtoe(end); xtoedot(end)];
+    ceq = [ceq; xtoe(end)-2];
 end
