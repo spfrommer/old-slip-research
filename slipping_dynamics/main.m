@@ -2,8 +2,7 @@ sp = SimParams();
 
 tic
 % Minimize the square of the simulation time
-%time_min = @(x) costfun(x, simparams);
-time_min = @(x) sum(x(1:sp.phases));
+time_min = @(x) costfun(x, sp);
 % The initial parameter guess; 1 second/phase, gridN lengths, gridN lengthdots,
 % gridN actuated lengths, gridN actlengthdots, gridN actlengthddots (input),
 % gridN leg angles, gridN leg angle dots, gridN hip torques, gridN toe x,

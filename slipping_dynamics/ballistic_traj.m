@@ -6,11 +6,8 @@ statecell = num2cell(startstate');
 yend = raend * sin(phiend);
 disc = ydot^2 - 2 * sp.gravity * (yend - y);
 % Avoid returning complex results
-if disc >= 0
-    flight_time = (-1/sp.gravity) * (-ydot - sqrt(disc));
-else
-    flight_time = 0;
-end
+flight_time = real((-1/sp.gravity) * (-ydot - sqrt(disc)));
+
 xend = x + flight_time * xdot;
 xdotend = xdot;
 ydotend = ydot - sp.gravity * flight_time;

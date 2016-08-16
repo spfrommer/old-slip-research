@@ -17,7 +17,7 @@ function [] = animate_slip( times, xs, ys, phis, lens, simparams )
     len_text = text(0, 1.6, sprintf('len: %f', 0), 'FontSize', 13);
     
     while time <= times(end)
-        tgreater = find(times > time);
+        tgreater = find(times >= time);
         ti = tgreater(1);
         
         ncoils = 10;

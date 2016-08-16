@@ -1,6 +1,6 @@
 function [ lb, ub ] = bounds(sp)
-time_min            = 0.1;
-time_max            = 5;
+time_min            = 0.00000001;
+time_max            = Inf;
 min_xtoe            = -Inf;
 max_xtoe            = Inf;
 min_xtoedot         = -Inf;
