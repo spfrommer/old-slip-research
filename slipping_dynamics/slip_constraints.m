@@ -5,13 +5,13 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
     phaseconstsineq = 4 * (gridN) * sp.phases;
     transconstsineq = 3 * (sp.phases - 1);
     c = zeros(phaseconstsineq + transconstsineq, 1);
-    disp(sprintf('Length of c: %d', length(c)));
+    %disp(sprintf('Length of c: %d', length(c)));
     
     phaseconstseq = 8 * (sp.gridN - 1) * sp.phases;
     transconstseq = 8 * (sp.phases - 1);
     % Preallocate the nonlinear equality constraint vector
     ceq = zeros(phaseconstseq + transconstseq, 1);    
-    disp(sprintf('Length of ceq: %d', length(ceq)));
+    %disp(sprintf('Length of ceq: %d', length(ceq)));
     
     % Unpack the vector
     [xtoe, xtoedot, x, xdot, y, ydot, ra, radot, raddot, hiptorque] = ...
