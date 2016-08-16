@@ -1,4 +1,4 @@
-function [ lb, ub ] = bounds(simparams)
+function [ lb, ub ] = bounds(sp)
 time_min            = 0.1;
 time_max            = 5;
 min_xtoe            = -Inf;
@@ -22,14 +22,14 @@ max_raddot          = 1;
 min_hiptorque       = -100;
 max_hiptorque       = 100;
 
-grid = ones(simparams.gridN * simparams.phases, 1);
-lb = [ones(simparams.phases, 1) * time_min;
+grid = ones(sp.gridN * sp.phases, 1);
+lb = [ones(sp.phases, 1) * time_min;
       grid*min_xtoe;   grid*min_xtoedot;
       grid*min_x;      grid*min_xdot;
       grid*min_y;      grid*min_ydot;
       grid*min_ra;     grid*min_radot;
       grid*min_raddot; grid*min_hiptorque;];
-ub = [ones(simparams.phases, 1) * time_max;
+ub = [ones(sp.phases, 1) * time_max;
       grid*max_xtoe;   grid*max_xtoedot;
       grid*max_x;      grid*max_xdot;
       grid*max_y;      grid*max_ydot;

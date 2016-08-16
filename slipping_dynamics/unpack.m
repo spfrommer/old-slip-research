@@ -1,7 +1,7 @@
 function [ xtoe, xtoedot, x, xdot, y, ydot, ...
-           ra, radot, raddot, hiptorque] = unpack( funparams, simparams )
-    p = simparams.phases;
-    cnt = simparams.gridN * p;
+           ra, radot, raddot, hiptorque] = unpack( funparams, sp )
+    p = sp.phases;
+    cnt = sp.gridN * p;
     
     xtoe          = funparams(p + 1           : p + cnt);
     xtoedot       = funparams(p + 1 + cnt     : p + cnt * 2);

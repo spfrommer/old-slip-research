@@ -1,23 +1,23 @@
-function [ c, ceq ] = slip_constraints( funparams, simparams )
-    gridN = simparams.gridN;
+function [ c, ceq ] = slip_constraints( funparams, sp )
+    gridN = sp.gridN;
     
     % Preallocate the nonlinear inequality constraint vector
-    phaseconstsineq = 2 * (gridN) * simparams.phases;
-    transconstsineq = 2 * (simparams.phases - 1);
+    phaseconstsineq = 2 * (gridN) * sp.phases;
+    transconstsineq = 2 * (sp.phases - 1);
     c = zeros(phaseconstsineq + transconstsineq, 1);
     
-    phaseconstseq = 8 * (simparams.gridN - 1) * simparams.phases;
-    transconstseq = 8 * (simparams.phases - 1);
+    phaseconstseq = 8 * (sp.gridN - 1) * sp.phases;
+    transconstseq = 8 * (sp.phases - 1);
     % Preallocate the nonlinear equality constraint vector
     ceq = zeros(phaseconstseq + transconstseq, 1);    
 
     % Unpack the vector
     [xtoe, xtoedot, x, xdot, y, ydot, ra, radot, raddot, hiptorque] = ...
-        unpack(funparams, simparams);
+        unpack(funparams, sp);
     
     % Iterate over all the phases
-    for p = 1 : simparams.phases
-        phasestart = (p - 1) * simparams.gridN + 1;
+    for p = 1 : sp.phases
+        phasestart = (p - 1) * sp.gridN + 1;
         
         % Calculate the timestep for that specific phase
         sim_time = funparams(p);
@@ -35,7 +35,7 @@ function [ c, ceq ] = slip_constraints( funparams, simparams )
         if p > 1
             raend = ra(phasestart);
             phiend = mod(atan2(y(phasestart), x(phasestart) - xtoe(phasestart)), 2 * pi);
-            [endstate, disc, ~] = ballistic_traj(end_state, raend, phiend, simparams);
+            [endstate, disc, ~] = ballistic_traj(end_state, raend, phiend, sp);
             ceq(phaseconstseq+(p-2)*8+1 : phaseconstseq+(p-1)*8) = ...
                                          endstate - state_n;
             % Constrain ballistic trajectory to be feasible
@@ -50,7 +50,7 @@ function [ c, ceq ] = slip_constraints( funparams, simparams )
         pineqoffset = 2 * (gridN) * (p - 1);
         
         [statedot_n, compvars_n] = dynamics(state_n, raddot(phasestart), ...
-                                        hiptorque(phasestart), simparams);
+                                        hiptorque(phasestart), sp);
         for i = phasestart : phasestart + gridN - 2
             % The state at the beginning of the time interval
             state_i = state_n;
@@ -62,7 +62,7 @@ function [ c, ceq ] = slip_constraints( funparams, simparams )
             compvars_i = compvars_n;
             % The state derivative at the end of the time interval
             [statedot_n, compvars_n] = ...
-                dynamics(state_n, raddot(i+1), hiptorque(i+1), simparams);
+                dynamics(state_n, raddot(i+1), hiptorque(i+1), sp);
 
             % The end position of the time interval calculated using quadrature
             stateend = state_i + delta_time * (statedot_i + statedot_n) / 2;
@@ -73,17 +73,17 @@ function [ c, ceq ] = slip_constraints( funparams, simparams )
             
             % Constrain the length of the leg & spring force
             c(pineqoffset+(i-1)*3+1 : pineqoffset+i*3) = ...
-                [compvars_i.r-simparams.maxlen; ...
-                 simparams.minlen-compvars_i.r; -compvars_i.fs];
+                [compvars_i.r-sp.maxlen; ...
+                 sp.minlen-compvars_i.r; -compvars_i.fs];
         end
         % Constrain the length of the leg at the end position
         c(pineqoffset+(gridN-1)*3+1 : pineqoffset+gridN*3) = ...
-                                   [compvars_n.r - simparams.maxlen; ...
-                                    simparams.minlen - compvars_n.r; ...
+                                   [compvars_n.r - sp.maxlen; ...
+                                    sp.minlen - compvars_n.r; ...
                                     -1]; % No spring force constraint at end
     end
     % Add first phase start constraints
     ceq = [ceq; x(1); y(1) - 1; xtoe(1); xtoedot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; x(end) - 0.5; y(end) - 1.5; xtoe(end); xtoedot(end)];
+    ceq = [ceq; x(end) - 0.5; y(end) - 0.5; xtoe(end); xtoedot(end)];
 end
