@@ -15,7 +15,7 @@ i = sp.gridN + 1;
 for p = 1 : sp.phases - 1
     % Interpolate ballistic flight
     disc = ydot(i-1)^2 - 2 * sp.gravity * (y(i) - y(i-1));
-    flight_time = (-1/sp.gravity) * (-ydot(i-1) - sqrt(disc));
+    flight_time = (-1/sp.gravity) * (-ydot(i-1) - real(sqrt(disc)));
     time = 0;
     dt = sp.ballisticdt;
     while time < flight_time-dt
@@ -34,6 +34,7 @@ for p = 1 : sp.phases - 1
     end
     times = [times(1:end-1) times(end):optimal(p+1)/ ...
                             sp.gridN:times(end)+optimal(p+1)];
+    i = i + sp.gridN;
 end
 
 fig = figure(1);
