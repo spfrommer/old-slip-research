@@ -6,14 +6,14 @@ statecell = num2cell(startstate');
 yend = raend * sin(phiend);
 disc = ydot^2 - 2 * sp.gravity * (yend - y);
 % Avoid returning complex results
-flight_time = real((-1/sp.gravity) * (-ydot - sqrt(disc)));
+flight_time = (-1/sp.gravity) * (-ydot - real(sqrt(disc)));
 
 xend = x + flight_time * xdot;
 xdotend = xdot;
 ydotend = ydot - sp.gravity * flight_time;
 xtoeend = xend - raend * cos(phiend);
-%xtoedotend = xdotend;
-xtoedotend = 0;
+xtoedotend = xdotend;
+%xtoedotend = 0;
 radotend = 0;
 endstate = [xtoeend; xtoedotend; xend; xdotend; ...
             yend; ydotend; raend; radotend];

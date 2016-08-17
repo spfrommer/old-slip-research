@@ -55,31 +55,31 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
         
         [statedot_n, compvars_n] = dynamics(state_n, raddot(phasestart), ...
                                         hiptorque(phasestart), sp);
-        for i = phasestart : phasestart + gridN - 2
+        for i = 0 : gridN - 2
             % The state at the beginning of the time interval
             state_i = state_n;
             % What the state should be at the end of the time interval
-            state_n = [xtoe(i+1); xtoedot(i+1); x(i+1);  xdot(i+1); ...
-                       y(i+1);    ydot(i+1);    ra(i+1); radot(i+1)];
+            state_n = [xtoe(phasestart+i); xtoedot(phasestart+i); x(phasestart+i);  xdot(phasestart+i); ...
+                       y(phasestart+i);    ydot(phasestart+i);    ra(phasestart+i); radot(phasestart+i)];
             % The state derivative at the beginning of the time interval
             statedot_i = statedot_n;
             compvars_i = compvars_n;
             % The state derivative at the end of the time interval
             [statedot_n, compvars_n] = ...
-                dynamics(state_n, raddot(i+1), hiptorque(i+1), sp);
+                dynamics(state_n, raddot(phasestart+i), hiptorque(phasestart+i), sp);
 
             % The end position of the time interval calculated using quadrature
             stateend = state_i + delta_time * (statedot_i + statedot_n) / 2;
             
             % Constrain the end state of the current time interval to be
             % equal to the starting state of the next time interval
-            ceq(peqoffset+(i-1)*8+1 : peqoffset+i*8) = state_n - stateend;
+            ceq(peqoffset+(i)*8+1 : peqoffset+(i+1)*8) = state_n - stateend;
             
             % Constrain the length of the leg & spring force
-            c(pineqoffset+(i-1)*4+1 : pineqoffset+i*4) = ...
+            c(pineqoffset+i*4+1 : pineqoffset+(i+1)*4) = ...
                 [compvars_i.r-sp.maxlen; ...
                  sp.minlen-compvars_i.r; -compvars_i.fs; ...
-                 -y(i)];
+                 -y(phasestart+i)];
         end
         % Constrain the length of the leg at the end position
         % No spring force constraint at end
@@ -91,5 +91,5 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
     % Add first phase start constraints
     ceq = [ceq; x(1); xtoe(1); xtoedot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; xtoe(end)-2];
+    ceq = [ceq; xtoe(end)];
 end
