@@ -1,5 +1,6 @@
 function [] = animate_slip( times, xs, ys, phis, lens, simparams )
-    time = 0;
+    dt = 0.03;
+    time = -dt;
     % Initialize the figure
     figure(1);
     clf;
@@ -17,8 +18,13 @@ function [] = animate_slip( times, xs, ys, phis, lens, simparams )
     len_text = text(0, 1.6, sprintf('len: %f', 0), 'FontSize', 13);
     
     while time <= times(end)
+        time = time + dt;
         tgreater = find(times >= time);
-        ti = tgreater(1);
+        if ~isempty(tgreater)
+            ti = tgreater(1);
+        else
+            ti = length(lens);
+        end
         
         ncoils = 10;
         coilres = 2;
@@ -61,7 +67,6 @@ function [] = animate_slip( times, xs, ys, phis, lens, simparams )
         axis square;
         axis manual;
         pause(0.03);
-        time = time + 0.01;
     end
 end
 

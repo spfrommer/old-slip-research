@@ -14,10 +14,10 @@ function [ time ] = costfun( funparams, sp )
             phiend = mod(atan2(y(phasestart), ...
                          x(phasestart) - xtoe(phasestart)), 2 * pi);
             [~, ~, flight_time] = ballistic_traj(end_state, raend, phiend, sp);
-            time = time + flight_time;
+            time = time - flight_time;
         end
     end
     
-    time = time^2;
+    %time = time^2;
 end
 

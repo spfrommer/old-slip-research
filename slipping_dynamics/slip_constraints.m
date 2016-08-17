@@ -87,7 +87,8 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
     c = [phase_ic; trans_ic];
     ceq = [phase_ec; trans_ec];
     % Add first phase start constraints
-    ceq = [ceq; xtoe(1); xtoedot(1); x(1); y(1)-1; ra(1) - 1; radot(1)];
+    ceq = [ceq; xtoe(1); xtoedot(1); x(1); xdot(1); y(1)-0.2; ydot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; xtoe(end); xtoedot(end); x(end)+0.5; y(end)-0.5];
+    ceq = [ceq; xtoe(end); xtoedot(end); x(end)];
+    % ceq = [ceq; xtoe(end); xtoedot(end); x(end)+0.7; y(end)-0.5];
 end
