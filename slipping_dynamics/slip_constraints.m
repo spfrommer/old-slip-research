@@ -10,8 +10,8 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
     trans_ec = zeros(8 * (sp.phases - 1), 1);
     
     % Unpack the parameter vector
-    [xtoe, xtoedot, x, xdot, y, ydot, ra, radot, raddot, hiptorque] = ...
-        unpack(funparams, sp);
+    [phase_t, xtoe, xtoedot, x, xdot, y, ydot, ...
+        ra, radot, raddot, torque] = unpack(funparams, sp);
     
     % Iterate over all the phases
     for p = 1 : sp.phases
@@ -19,7 +19,7 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
         ps = (p - 1) * sp.gridN + 1;
         
         % Calculate the timestep for that specific phase
-        sim_time = funparams(p);
+        sim_time = phase_t(p);
         delta_time = sim_time / sp.gridN;
         
         % Take off state at the end of the last phase
@@ -51,7 +51,7 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
         pic_offset = 4 * (sp.gridN) * (p - 1);
         
         [statedot_n, compvars_n] = dynamics(state_n, raddot(ps), ...
-                                        hiptorque(ps), sp);
+                                        torque(ps), sp);
         for i = 1 : sp.gridN - 1
             % The state at the beginning of the time interval
             state_i = state_n;
@@ -63,7 +63,7 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
             compvars_i = compvars_n;
             % The state derivative at the end of the time interval
             [statedot_n, compvars_n] = ...
-                dynamics(state_n, raddot(ps+i), hiptorque(ps+i), sp);
+                dynamics(state_n, raddot(ps+i), torque(ps+i), sp);
 
             % The end position of the time interval calculated using quadrature
             stateend = state_i + delta_time * (statedot_i + statedot_n) / 2;

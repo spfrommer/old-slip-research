@@ -4,7 +4,7 @@ function [ time ] = costfun( funparams, sp )
     
     if sp.phases > 1
         % Unpack the vector
-        [xtoe, xtoedot, x, xdot, y, ydot, ra, radot, ~, ~] = ...
+        [phase_t, xtoe, xtoedot, x, xdot, y, ydot, ra, radot, ~, ~] = ...
             unpack(funparams, sp);
         for p = 2 : sp.phases            
             phasestart = (p - 1) * sp.gridN + 1;

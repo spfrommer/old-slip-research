@@ -1,5 +1,5 @@
 % Unpack the vector
-[xtoe, xtoedot, x, xdot, y, ydot, ...
+[phase_t, xtoe, xtoedot, x, xdot, y, ydot, ...
     ra, radot, raddot, hiptorque] = unpack(optimal, sp);
 [c, ceq] = slip_constraints(optimal, sp);
 
@@ -32,8 +32,8 @@ for p = 1 : sp.phases - 1
         time = time + dt;
         times = [times times(end)+dt];
     end
-    times = [times(1:end-1) times(end):optimal(p+1)/ ...
-                            sp.gridN:times(end)+optimal(p+1)];
+    times = [times(1 : end-1) times(end):optimal(p+1)/sp.gridN ...
+                                        :(times(end)+optimal(p+1))];
     i = i + sp.gridN;
 end
 
