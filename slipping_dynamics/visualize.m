@@ -1,7 +1,7 @@
 % Unpack the vector
 [phase_t, xtoe, xtoedot, x, xdot, y, ydot, ...
     ra, radot, raddot, hiptorque] = unpack(optimal, sp);
-[c, ceq] = slip_constraints(optimal, sp);
+[c, ceq] = constraints(optimal, sp);
 
 % Calculate leg lengths and angles
 r = sqrt((x - xtoe).^2 + y.^2);
@@ -46,7 +46,7 @@ toolbar.HandleVisibility = 'off';
 % Read an image
 [img,map] = imread('rewind.gif');
 p = uipushtool(toolbar, 'TooltipString', 'Replay animation', ...
-      'ClickedCallback', 'animate_slip(times, x, y, phi, r, sp)');
+      'ClickedCallback', 'animate(times, x, y, phi, r, sp)');
 icon = ind2rgb(img, map);
 p.CData = icon;
-animate_slip(times, x, y, phi, r, sp);
+animate(times, x, y, phi, r, sp);

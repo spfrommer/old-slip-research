@@ -1,4 +1,4 @@
-function [ c, ceq ] = slip_constraints( funparams, sp )
+function [ c, ceq ] = constraints( funparams, sp )
     % Phase inequality constraints
     phase_ic = zeros(4 * sp.gridN * sp.phases, 1);
     % Phase transition inequality constraints
@@ -37,7 +37,7 @@ function [ c, ceq ] = slip_constraints( funparams, sp )
             raend = ra(ps);
             phiend = mod(atan2(y(ps), x(ps) - xtoe(ps)), 2 * pi);
             
-            [land_state, disc, flight_t] = ballistic_traj(to_state, raend, phiend, sp);
+            [land_state, disc, flight_t] = ballistic(to_state, raend, phiend, sp);
             trans_ec((p-2)*8+1:(p-1)*8) = land_state - state_n;
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff

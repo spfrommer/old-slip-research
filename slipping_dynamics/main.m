@@ -1,8 +1,6 @@
 sp = SimParams();
 
 tic
-% Minimize the square of the simulation time
-time_min = @(x) costfun(x, sp);
 % The initial parameter guess; 1 second/phase, gridN lengths, gridN lengthdots,
 % gridN actuated lengths, gridN actlengthdots, gridN actlengthddots (input),
 % gridN leg angles, gridN leg angle dots, gridN hip torques, gridN toe x,
@@ -26,7 +24,7 @@ options = optimoptions(@fmincon, 'TolFun', 0.00000001, 'MaxIter', 10000, ...
                        'DiffMinChange', 0.0001, 'Algorithm', 'sqp', ...
                        'StepTolerance', 1e-13);
 % Solve the optimization problem
-optimal = fmincon(time_min, x0, A, b, Aeq, Beq, lb, ub, ...
-                  @(x) slip_constraints(x, sp), options);
+optimal = fmincon(@(x) costfun(x, sp), x0, A, b, Aeq, Beq, lb, ub, ...
+                  @(x) constraints(x, sp), options);
 disp(sprintf('Finished in %f seconds', toc));
 visualize

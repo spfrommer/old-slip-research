@@ -1,4 +1,4 @@
-function [] = animate_slip( times, xs, ys, phis, lens, simparams )
+function [] = animate( times, xs, ys, phis, lens, simparams )
     dt = 0.03;
     time = -dt;
     % Initialize the figure

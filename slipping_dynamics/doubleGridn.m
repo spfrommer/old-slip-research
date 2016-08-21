@@ -1,6 +1,6 @@
-function [ inter ] = double_gridn( funparams, sp )
+function [ inter ] = doubleGridn( funparams, sp )
     [ phase_t, xtoe, xtoedot, x, xdot, y, ydot, ...
-           ra, radot, raddot, torque] = unpack( funparams, sp )
+           ra, radot, raddot, torque] = unpack(funparams, sp);
     inter = [phase_t; kron(xtoe', [1 1])';      kron(xtoedot', [1 1])';
                       kron(x', [1 1])';         kron(xdot', [1 1])';
                       kron(y', [1 1])';         kron(ydot', [1 1])';
