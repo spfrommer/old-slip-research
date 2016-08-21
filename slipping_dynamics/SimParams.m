@@ -1,8 +1,8 @@
 classdef SimParams < handle
     properties
         phases = 3;         % Number of phases (steps)
-        gridN = 4;          % Number of grid points during stance phase
-        camfollow = false;  % Whether camera should follow the hip
+        gridn = 4;          % Number of grid points during stance phase
+        camFollow = false;  % Whether camera should follow the hip
         masship = 10;       % Mass of body in kilograms
         masstoe = 2;        % Mass of the toe in kilograms
         spring = 400;       % Spring coefficient

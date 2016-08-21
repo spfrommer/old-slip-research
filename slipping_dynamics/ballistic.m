@@ -1,20 +1,20 @@
-function [ endstate, disc, flight_time ] = ballistic( startstate, raend, phiend, sp )
+function [ endState, disc, flightTime ] = ballistic( startState, raend, phiend, sp )
 % Calculates end state xend after flight with xstart state and a desired
 % touchdown angle of phiend with desired touchdown length of raend
-statecell = num2cell(startstate');
-[xtoe, xtoedot, x, xdot, y, ydot, ra, radot] = deal(statecell{:});
+stateCell = num2cell(startState');
+[~, ~, x, xdot, y, ydot, ~, ~] = deal(stateCell{:});
 yend = raend * sin(phiend);
 disc = ydot^2 - 2 * sp.gravity * (yend - y);
 % Avoid returning complex results
-flight_time = (-1/sp.gravity) * (-ydot - real(sqrt(disc)));
+flightTime = (-1/sp.gravity) * (-ydot - real(sqrt(disc)));
 
-xend = x + flight_time * xdot;
+xend = x + flightTime * xdot;
 xdotend = xdot;
-ydotend = ydot - sp.gravity * flight_time;
+ydotend = ydot - sp.gravity * flightTime;
 xtoeend = xend - raend * cos(phiend);
 xtoedotend = xdotend;
 radotend = 0;
-endstate = [xtoeend; xtoedotend; xend; xdotend; ...
+endState = [xtoeend; xtoedotend; xend; xdotend; ...
             yend; ydotend; raend; radotend];
 end
 

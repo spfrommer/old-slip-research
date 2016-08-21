@@ -1,4 +1,4 @@
-function [ y ] = smoothzero( x )
+function [ y ] = smoothZero( x )
     a = 100;
     if x > 1/a
         y = x;

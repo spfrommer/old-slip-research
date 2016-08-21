@@ -1,20 +1,21 @@
 function [ time ] = costfun( funparams, sp )
+    % Unpack the vector
+    [phaseT, xtoe, xtoedot, x, xdot, y, ydot, ra, radot, ~, ~] = ...
+        unpack(funparams, sp);
+        
     % Integrate the time for each phase
-    time = sum(funparams(1 : sp.phases));
+    time = sum(phaseT);
     
     if sp.phases > 1
-        % Unpack the vector
-        [phase_t, xtoe, xtoedot, x, xdot, y, ydot, ra, radot, ~, ~] = ...
-            unpack(funparams, sp);
         for p = 2 : sp.phases            
-            phasestart = (p - 1) * sp.gridN + 1;
-            end_state = [xtoe(phasestart-1); xtoedot(phasestart-1); x(phasestart-1);  xdot(phasestart-1); ...
-                        y(phasestart-1);    ydot(phasestart-1);    ra(phasestart-1); radot(phasestart-1)];
-            raend = ra(phasestart);
-            phiend = mod(atan2(y(phasestart), ...
-                         x(phasestart) - xtoe(phasestart)), 2 * pi);
-            [~, ~, flight_time] = ballistic(end_state, raend, phiend, sp);
-            time = time - flight_time;
+            ps = (p - 1) * sp.gridn + 1;
+            endState = [xtoe(ps-1); xtoedot(ps-1); x(ps-1);  xdot(ps-1); ...
+                        y(ps-1);    ydot(ps-1);    ra(ps-1); radot(ps-1)];
+            raend = ra(ps);
+            phiend = mod(atan2(y(ps), ...
+                         x(ps) - xtoe(ps)), 2 * pi);
+            [~, ~, flightT] = ballistic(endState, raend, phiend, sp);
+            time = time - flightT;
         end
     end
     
