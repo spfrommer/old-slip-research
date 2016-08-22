@@ -74,13 +74,13 @@ function [ c, ceq ] = constraints( funparams, sp )
             % Constrain the length of the leg, spring force, and head y pos
             phaseIC(picOffset+(i-1)*4+1 : picOffset+i*4) = ...
                     [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
-                     -compvarsI.fs; -stateN(5)];
+                     -compvarsI.fs; -stateI(5)];
         end
         % Constrain the length of the leg at the end position
         % No spring force constraint at end
         phaseIC(picOffset+(sp.gridn-1)*4+1:picOffset+sp.gridn*4) = ...
                 [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; ...
-                 -1; -y(ps+sp.gridn-1)];
+                 -1; -stateN(5)];
     end
     
     c = [phaseIC; transIC];
