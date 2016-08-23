@@ -17,8 +17,8 @@ minRa              = -Inf;
 maxRa              = Inf;
 minRadot           = -Inf;
 maxRadot           = Inf;
-minRaddot          = -10;
-maxRaddot          = 10;
+minRaddot          = -100;
+maxRaddot          = 100;
 minTorque          = -100;
 maxTorque          = 100;
 

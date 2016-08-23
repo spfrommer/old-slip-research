@@ -1,4 +1,4 @@
-function [ time ] = costfun( funparams, sp )
+function [ time ] = timecost( funparams, sp )
     % Unpack the vector
     [phaseT, xtoe, xtoedot, x, xdot, y, ydot, ra, radot, ~, ~] = ...
         unpack(funparams, sp);
@@ -15,7 +15,7 @@ function [ time ] = costfun( funparams, sp )
             phiend = mod(atan2(y(ps), ...
                          x(ps) - xtoe(ps)), 2 * pi);
             [~, ~, flightT] = ballistic(endState, raend, phiend, sp);
-            time = time - flightT;
+            %time = time - flightT;
         end
     end
     

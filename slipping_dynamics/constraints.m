@@ -28,7 +28,7 @@ function [ c, ceq ] = constraints( funparams, sp )
         end
         
         stateN = [xtoe(ps); xtoedot(ps); x(ps);  xdot(ps); ...
-                   y(ps);    ydot(ps);    ra(ps); radot(ps)];
+                  y(ps);    ydot(ps);    ra(ps); radot(ps)];
         
         % Link ballistic trajectory from end of last phase to this phase
         if p > 1
@@ -40,8 +40,8 @@ function [ c, ceq ] = constraints( funparams, sp )
             transEC((p-2)*8+1:(p-1)*8) = landState - stateN;
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff
-            %transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, toCompvars.fs];
-            transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, -1];
+            transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, toCompvars.fs];
+            %transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, -1];
         end
             
         % Offset in the equality parameter vector due to phase
@@ -70,7 +70,6 @@ function [ c, ceq ] = constraints( funparams, sp )
             % Constrain the end state of the current time interval to be
             % equal to the starting state of the next time interval
             phaseEC(pecOffset+(i-1)*8+1:pecOffset+i*8) = stateN - endState;
-            
             % Constrain the length of the leg, spring force, and head y pos
             phaseIC(picOffset+(i-1)*4+1 : picOffset+i*4) = ...
                     [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
@@ -86,8 +85,7 @@ function [ c, ceq ] = constraints( funparams, sp )
     c = [phaseIC; transIC];
     ceq = [phaseEC; transEC];
     % Add first phase start constraints
-    ceq = [ceq; xtoe(1); xtoedot(1); x(1); xdot(1); y(1)-0.2; ydot(1); ra(1) - 1; radot(1)];
+    ceq = [ceq; xtoe(1); xtoedot(1); x(1); xdot(1); ydot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; xtoe(end); xtoedot(end); x(end)];
-    % ceq = [ceq; xtoe(end); xtoedot(end); x(end)+0.7; y(end)-0.5];
+    ceq = [ceq; xtoe(end)-8; x(end)-8];
 end
