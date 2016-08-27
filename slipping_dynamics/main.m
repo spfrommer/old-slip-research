@@ -24,7 +24,7 @@ options = optimoptions(@fmincon, 'TolFun', 0.00000001, 'MaxFunEvals', 100000, ..
                        'StepTolerance', 1e-13);
 
 % Solve the optimization problem
-optimal = fmincon(@(x) timecost(x, sp), x0, A, b, Aeq, Beq, lb, ub, ...
+optimal = fmincon(@(x) constcost(x, sp), x0, A, b, Aeq, Beq, lb, ub, ...
                   @(x) constraints(x, sp), options);
 disp(sprintf('Finished in %f seconds', toc));
 visualize

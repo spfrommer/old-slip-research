@@ -1,6 +1,6 @@
 function [ lb, ub ] = bounds(sp)
-timeMin            = 0.1;
-timeMax            = 5;
+timeMin            = sp.mintime;
+timeMax            = sp.maxtime;
 minXtoe            = -Inf;
 maxXtoe            = Inf;
 minXtoedot         = -Inf;
@@ -17,10 +17,10 @@ minRa              = -Inf;
 maxRa              = Inf;
 minRadot           = -Inf;
 maxRadot           = Inf;
-minRaddot          = -100;
-maxRaddot          = 100;
-minTorque          = -100;
-maxTorque          = 100;
+minRaddot          = sp.minraddot;
+maxRaddot          = sp.maxraddot;
+minTorque          = sp.mintorque;
+maxTorque          = sp.maxtorque;
 
 grid = ones(sp.gridn * sp.phases, 1);
 lb = [ones(sp.phases, 1) * timeMin;
