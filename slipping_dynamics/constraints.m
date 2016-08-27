@@ -1,6 +1,6 @@
 function [ c, ceq ] = constraints( funparams, sp )
     % Phase inequality constraints
-    phaseIC = zeros(4 * sp.gridn * sp.phases, 1);
+    phaseIC = zeros(3 * sp.gridn * sp.phases, 1);
     % Phase transition inequality constraints
     transIC = zeros(3 * (sp.phases - 1), 1);
     
@@ -41,7 +41,6 @@ function [ c, ceq ] = constraints( funparams, sp )
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff
             transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, toCompvars.fs];
-            %transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, -1];
         end
             
         % Offset in the equality parameter vector due to phase
@@ -71,15 +70,14 @@ function [ c, ceq ] = constraints( funparams, sp )
             % equal to the starting state of the next time interval
             phaseEC(pecOffset+(i-1)*8+1:pecOffset+i*8) = stateN - endState;
             % Constrain the length of the leg, spring force, and head y pos
-            phaseIC(picOffset+(i-1)*4+1 : picOffset+i*4) = ...
+            phaseIC(picOffset+(i-1)*3+1 : picOffset+i*3) = ...
                     [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
-                     -compvarsI.fs; -stateI(5)];
+                     -compvarsI.fs];
         end
         % Constrain the length of the leg at the end position
         % No spring force constraint at end
-        phaseIC(picOffset+(sp.gridn-1)*4+1:picOffset+sp.gridn*4) = ...
-                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; ...
-                 -1; -stateN(5)];
+        phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
+                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -1];
     end
     
     c = [phaseIC; transIC];
