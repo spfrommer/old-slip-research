@@ -1,9 +1,9 @@
 function [ phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
            ra, radot, raddot, torque] = unpack( funparams, sp )
-    p = sp.phases;
+    p = length(sp.phases);
     cnt = sp.gridn * p;
     
-    phaseT       = funparams(1               : p);
+    phaseT        = funparams(1               : p);
     xtoe          = funparams(p + 1           : p + cnt);
     xtoedot       = funparams(p + 1 + cnt     : p + cnt * 2);
     x             = funparams(p + 1 + cnt * 2 : p + cnt * 3);

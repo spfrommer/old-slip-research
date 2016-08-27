@@ -1,20 +1,20 @@
 function [ c, ceq ] = constraints( funparams, sp )
     % Phase inequality constraints
-    phaseIC = zeros(3 * sp.gridn * sp.phases, 1);
+    phaseIC = zeros(3 * sp.gridn * length(sp.phases), 1);
     % Phase transition inequality constraints
-    transIC = zeros(3 * (sp.phases - 1), 1);
+    transIC = zeros(3 * (length(sp.phases) - 1), 1);
     
     % Phase equality constraints
-    phaseEC = zeros(8 * (sp.gridn - 1) * sp.phases, 1);
+    phaseEC = zeros(8 * (sp.gridn - 1) * length(sp.phases), 1);
     % Phase inequality constraints
-    transEC = zeros(8 * (sp.phases - 1), 1);
+    transEC = zeros(8 * (length(sp.phases) - 1), 1);
     
     % Unpack the parameter vector
     [phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
         ra, radot, raddot, torque] = unpack(funparams, sp);
     
     % Iterate over all the phases
-    for p = 1 : sp.phases
+    for p = 1 : length(sp.phases)
         % The index of the first dynamics variable for the current phase
         ps = (p - 1) * sp.gridn + 1;
         

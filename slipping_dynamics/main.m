@@ -9,7 +9,7 @@ if exist('optimal','var')
     disp('Using previous solution as starting guess...');
     x0 = optimal;
 else
-    x0 = ones(sp.phases+sp.gridn*sp.phases*10,1);
+    x0 = ones(length(sp.phases)+sp.gridn*length(sp.phases)*10,1);
 end
 % No linear inequality or equality constraints
 A = [];

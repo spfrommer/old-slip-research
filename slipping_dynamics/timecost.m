@@ -6,8 +6,8 @@ function [ time ] = timecost( funparams, sp )
     % Integrate the time for each phase
     time = sum(phaseT);
     
-    if sp.phases > 1
-        for p = 2 : sp.phases            
+    if length(sp.phases) > 1
+        for p = 2 : length(sp.phases)            
             ps = (p - 1) * sp.gridn + 1;
             endState = [xtoe(ps-1); xtoedot(ps-1); x(ps-1);  xdot(ps-1); ...
                         y(ps-1);    ydot(ps-1);    ra(ps-1); radot(ps-1)];

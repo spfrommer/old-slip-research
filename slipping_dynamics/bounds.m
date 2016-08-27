@@ -22,14 +22,14 @@ maxRaddot          = sp.maxraddot;
 minTorque          = sp.mintorque;
 maxTorque          = sp.maxtorque;
 
-grid = ones(sp.gridn * sp.phases, 1);
-lb = [ones(sp.phases, 1) * timeMin;
+grid = ones(sp.gridn * length(sp.phases), 1);
+lb = [ones(length(sp.phases), 1) * timeMin;
       grid*minXtoe;   grid*minXtoedot;
       grid*minX;      grid*minXdot;
       grid*minY;      grid*minYdot;
       grid*minRa;     grid*minRadot;
       grid*minRaddot; grid*minTorque;];
-ub = [ones(sp.phases, 1) * timeMax;
+ub = [ones(length(sp.phases), 1) * timeMax;
       grid*maxXtoe;   grid*maxXtoedot;
       grid*maxX;      grid*maxXdot;
       grid*maxY;      grid*maxYdot;

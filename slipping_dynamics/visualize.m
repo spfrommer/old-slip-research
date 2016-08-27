@@ -12,7 +12,7 @@ times = 0 : phaseT(1)/sp.gridn : phaseT(1);
 times = times(1:end-1);
 
 i = sp.gridn + 1;
-for p = 1 : sp.phases - 1
+for p = 1 : length(sp.phases) - 1
     % Interpolate ballistic flight
     disc = ydot(i-1)^2 - 2 * sp.gravity * (y(i) - y(i-1));
     flightTime = (-1/sp.gravity) * (-ydot(i-1) - real(sqrt(disc)));
