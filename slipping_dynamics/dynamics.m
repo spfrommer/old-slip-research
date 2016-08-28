@@ -14,7 +14,7 @@ function [ statedot, compvars ] = dynamics( state, raddot, hiptorque, ...
     yddot = (1/sp.masship) * (fs*sin(phi) + ft * (-cos(phi)) - fg);
 
     % Check if the phase should be slipping
-    if strcmp(curPhase, 'sl')
+    if strcmp(curPhase, 'sli')
         ff = -sp.friction*tanh(xtoedot * 50)*smoothZero(fs*sin(phi) -...
                    ft * cos(phi) + sp.masstoe*sp.gravity);
         xtoeddot = (1/sp.masstoe) * (-fs*cos(phi) - ft*sin(phi) + ff);

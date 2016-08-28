@@ -13,7 +13,7 @@ xend = x + flightTime * xdot;
 xdotend = xdot;
 ydotend = ydot - sp.gravity * flightTime;
 xtoeend = xend - raend * cos(phiend);
-if strcmp(curPhase, 'sl')
+if strcmp(curPhase, 'sli')
     xtoedotend = xdotend;
 else
     xtoedotend = 0;

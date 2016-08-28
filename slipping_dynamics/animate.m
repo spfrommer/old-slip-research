@@ -1,4 +1,4 @@
-function [] = animate( times, xs, ys, phis, lens, simparams )
+function [] = animate( times, xs, ys, phis, lens, sp )
     dt = 0.03;
     time = -dt;
     % Initialize the figure
@@ -7,7 +7,9 @@ function [] = animate( times, xs, ys, phis, lens, simparams )
     % Make all the plots draw to the same figure
     hold on;
     % Draw ground
-    patch([-100 100 100 -100], [0 0 -2 -2], [0 0.5 0]);
+    patch([-100 100 100 -100], [0 0 -5 -5], [0 0.5 0]);
+    % Draw ice patch
+    patch([sp.slipPatch, fliplr(sp.slipPatch)], [0 0 -0.5 -0.5], [0 0 0.5]);
     % Initialize the spring plot
     springPlot = plot(0, 0);
     % Initialize the hip circle fill
@@ -59,14 +61,16 @@ function [] = animate( times, xs, ys, phis, lens, simparams )
         lenText.String = sprintf('len: %f', lens(ti));
 
         % Set the axis
-        if simparams.camFollow
+        if sp.camFollow
             axis([-3 + xs(ti), 3 + xs(ti), -3, 3]);
+            timeText.Position(1) = xs(ti);
+            lenText.Position(1) = xs(ti);
         else
             axis([-3, 3, -3, 3]);
         end
         axis square;
         axis manual;
-        pause(0.03);
+        pause(0.1);
     end
 end
 
