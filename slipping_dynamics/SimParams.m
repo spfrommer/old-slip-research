@@ -1,6 +1,6 @@
 classdef SimParams < handle
     properties
-        phases = ['sl'; 'st'; 'sl']; % Order of phases (sl=slip, st=stick)
+        phases = ['st'; 'sl'; 'sl']; % Order of phases (sl=slip, st=stick)
         gridn = 10;         % Number of grid points during stance phase
         camFollow = true;   % Whether camera should follow the hip
         masship = 10;       % Mass of body in kilograms

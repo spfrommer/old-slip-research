@@ -15,6 +15,7 @@ function [ c, ceq ] = constraints( funparams, sp )
     
     % Iterate over all the phases
     for p = 1 : length(sp.phases)
+        phaseStr = sp.phases(p, :);
         % The index of the first dynamics variable for the current phase
         ps = (p - 1) * sp.gridn + 1;
         
@@ -36,7 +37,8 @@ function [ c, ceq ] = constraints( funparams, sp )
             raend = ra(ps);
             phiend = mod(atan2(y(ps), x(ps) - xtoe(ps)), 2 * pi);
             
-            [landState, disc, flightT] = ballistic(toState, raend, phiend, sp);
+            [landState, disc, flightT] = ballistic(toState, raend, ...
+                                                   phiend, sp, phaseStr);
             transEC((p-2)*8+1:(p-1)*8) = landState - stateN;
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff
@@ -49,7 +51,7 @@ function [ c, ceq ] = constraints( funparams, sp )
         picOffset = 4 * (sp.gridn) * (p - 1);
         
         [statedotN, compvarsN] = dynamics(stateN, raddot(ps), ...
-                                        torque(ps), sp);
+                                        torque(ps), sp, phaseStr);
         for i = 1 : sp.gridn - 1
             % The state at the beginning of the time interval
             stateI = stateN;
@@ -61,7 +63,7 @@ function [ c, ceq ] = constraints( funparams, sp )
             compvarsI = compvarsN;
             % The state derivative at the end of the time interval
             [statedotN, compvarsN] = ...
-                dynamics(stateN, raddot(ps+i), torque(ps+i), sp);
+                dynamics(stateN, raddot(ps+i), torque(ps+i), sp, phaseStr);
 
             % The end position of the time interval calculated using quadrature
             endState = stateI + dt * (statedotI + statedotN) / 2;
@@ -85,5 +87,5 @@ function [ c, ceq ] = constraints( funparams, sp )
     % Add first phase start constraints
     ceq = [ceq; xtoe(1); xtoedot(1); x(1); xdot(1); ydot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; xtoe(end)-4; x(end)-4];
+    ceq = [ceq; xtoe(end)-8; x(end)-8];
 end
