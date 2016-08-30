@@ -13,6 +13,6 @@ function [ phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
     ra            = funparams(p + 1 + cnt * 6 : p + cnt * 7);
     radot         = funparams(p + 1 + cnt * 7 : p + cnt * 8);
     raddot        = funparams(p + 1 + cnt * 8 : p + cnt * 9);
-    torque     = funparams(p + 1 + cnt * 9 : p + cnt * 10);
+    torque        = funparams(p + 1 + cnt * 9 : p + cnt * 10);
 end
 

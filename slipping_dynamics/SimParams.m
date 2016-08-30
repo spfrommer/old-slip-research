@@ -4,7 +4,7 @@ classdef SimParams < handle
         % stick right side of patch
         phases = ['sli'; 'stl'; 'str']; 
         slipPatch = [0 1];  % The region of slippery terrain
-        gridn = 10;         % Number of grid points during stance phase
+        gridn = 5;          % Number of grid points during stance phase
         camFollow = true;   % Whether camera should follow the hip
         masship = 10;       % Mass of body in kilograms
         masstoe = 2;        % Mass of the toe in kilograms
@@ -12,7 +12,7 @@ classdef SimParams < handle
         damp = 1;           % Damping coefficient
         gravity = 9.81;     % Gravity (m/s^2)
         friction = 2;       % Friction coefficient between toe and ground
-        ballisticdt = 0.03; % Time step during ballistic trajectory
+        dt = 0.01;          % Time step for visualization
 
         mintime = 0.1;      % Minimum stance phase time
         maxtime = 5;        % Maximum stance phase time

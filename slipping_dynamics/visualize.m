@@ -1,11 +1,9 @@
 % Unpack the vector
-[phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
-    ra, radot, raddot, hiptorque] = unpack(optimal, sp);
+[phaseT, xtoe, xtoedot, x, xdot, y, ydot,~,~,~,~] = unpack(optimal, sp);
 [c, ceq] = constraints(optimal, sp);
 
 % Calculate leg lengths and angles
 r = sqrt((x - xtoe).^2 + y.^2);
-phi = mod(atan2(y, x - xtoe), 2 * pi);
 
 % Discretize the times for the first phase
 times = 0 : phaseT(1)/sp.gridn : phaseT(1);
@@ -17,25 +15,36 @@ for p = 1 : length(sp.phases) - 1
     disc = ydot(i-1)^2 - 2 * sp.gravity * (y(i) - y(i-1));
     flightTime = (-1/sp.gravity) * (-ydot(i-1) - real(sqrt(disc)));
     time = 0;
-    dt = sp.ballisticdt;
-    while time < flightTime - dt
-        xtoe = [xtoe(1:i-1); (xtoe(i-1)+xtoedot(i-1)*dt); xtoe(i:end)];
+    while time < flightTime - sp.dt
+        xtoe = [xtoe(1:i-1); (xtoe(i-1)+xtoedot(i-1)*sp.dt); xtoe(i:end)];
         xtoedot = [xtoedot(1:i-1); xtoedot(i-1); xtoedot(i:end)];
-        x = [x(1:i-1); (x(i-1)+xdot(i-1)*dt); x(i:end)];
+        x = [x(1:i-1); (x(i-1)+xdot(i-1)*sp.dt); x(i:end)];
         xdot = [xdot(1:i-1); xdot(i-1); xdot(i:end)];
-        y = [y(1:i-1); (y(i-1)+ydot(i-1)*dt); y(i:end)];
-        ydot = [ydot(1:i-1); (ydot(i-1)-sp.gravity*dt); ydot(i:end)];
+        y = [y(1:i-1); (y(i-1)+ydot(i-1)*sp.dt); y(i:end)];
+        ydot = [ydot(1:i-1); (ydot(i-1)-sp.gravity*sp.dt); ydot(i:end)];
 
-        phi = [phi(1:i-1); mod(atan2(y(i), x(i) - xtoe(i)), 2 * pi); phi(i:end)];
+        %phi = [phi(1:i-1); mod(atan2(y(i), x(i) - xtoe(i)), 2 * pi); phi(i:end)];
+        %phi = [phi(1:i-1); 0; phi(i:end)];
         r = [r(1:i-1); 0; r(i:end)];
         i = i + 1;
-        time = time + dt;
-        times = [times times(end)+dt];
+        time = time + sp.dt;
+        times = [times times(end)+sp.dt];
     end
+    times = [times times(end)+sp.dt];
     times = [times(1 : end-1) times(end) : phaseT(p+1) / sp.gridn ...
                                          : (times(end) + phaseT(p+1))];
+    times = times(1:end-1);
     i = i + sp.gridn;
 end
+
+
+xtoe = interp1(times, xtoe, 0:sp.dt:times(end), 'linear');
+x = interp1(times, x, 0:sp.dt:times(end), 'linear');
+y = interp1(times, y, 0:sp.dt:times(end), 'linear');
+%phi = interp1(times, phi, 0:sp.dt:times(end), 'linear');
+r = interp1(times, r, 0:sp.dt:times(end), 'linear');
+times = 0:sp.dt:times(end);
+phi = mod(atan2(y, x - xtoe), 2 * pi);
 
 fig = figure(1);
 clf;
