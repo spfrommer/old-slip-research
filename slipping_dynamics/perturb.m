@@ -3,7 +3,7 @@ function [ perturbed ] = perturb( funparams, sp )
 [ phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
            ra, radot, raddot, torque] = unpack(funparams, sp);
 perturbed = [phaseT; xtoe; xtoedot; x; xdot; y; ydot; ra; radot;
-             raddot + (rand(sp.gridn, 1) - 0.5) * 0.001;
-             torque + (rand(sp.gridn, 1) - 0.5) * 0.001];
+             raddot + (rand(sp.gridn*length(sp.phases), 1) - 0.5) * 0.001;
+             torque + (rand(sp.gridn*length(sp.phases), 1) - 0.5) * 0.001];
 end
 
