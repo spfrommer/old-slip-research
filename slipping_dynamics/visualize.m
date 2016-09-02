@@ -23,8 +23,6 @@ for p = 1 : length(sp.phases) - 1
         y = [y(1:i-1); (y(i-1)+ydot(i-1)*sp.dt); y(i:end)];
         ydot = [ydot(1:i-1); (ydot(i-1)-sp.gravity*sp.dt); ydot(i:end)];
 
-        %phi = [phi(1:i-1); mod(atan2(y(i), x(i) - xtoe(i)), 2 * pi); phi(i:end)];
-        %phi = [phi(1:i-1); 0; phi(i:end)];
         r = [r(1:i-1); 0; r(i:end)];
         i = i + 1;
         time = time + sp.dt;
@@ -38,13 +36,12 @@ for p = 1 : length(sp.phases) - 1
 end
 
 
-xtoe = interp1(times, xtoe, 0:sp.dt:times(end), 'linear');
-x = interp1(times, x, 0:sp.dt:times(end), 'linear');
-y = interp1(times, y, 0:sp.dt:times(end), 'linear');
-%phi = interp1(times, phi, 0:sp.dt:times(end), 'linear');
-r = interp1(times, r, 0:sp.dt:times(end), 'linear');
+xtoe  = interp1(times, xtoe, 0:sp.dt:times(end), 'linear');
+x     = interp1(times, x, 0:sp.dt:times(end), 'linear');
+y     = interp1(times, y, 0:sp.dt:times(end), 'linear');
+r     = interp1(times, r, 0:sp.dt:times(end), 'linear');
 times = 0:sp.dt:times(end);
-phi = mod(atan2(y, x - xtoe), 2 * pi);
+phi   = mod(atan2(y, x - xtoe), 2 * pi);
 
 fig = figure(1);
 clf;
