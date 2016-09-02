@@ -19,7 +19,5 @@ function [ time ] = timecost( funparams, sp )
             time = time + flightT;
         end
     end
-    
-    time = time^2;
 end
 
