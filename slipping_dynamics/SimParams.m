@@ -3,7 +3,7 @@ classdef SimParams < handle
         % Order of phases (sli=slip, stl=stick left side of patch, str =
         % stick right side of patch
         phases = ['sli'; 'stl'; 'str']; 
-        slipPatch = [0 2];  % The region of slippery terrain
+        slipPatch = [0 1];  % The region of slippery terrain
         gridn = 10;         % Number of grid points during stance phase
         camFollow = true;   % Whether camera should follow the hip
         masship = 1;        % Mass of body in kilograms
