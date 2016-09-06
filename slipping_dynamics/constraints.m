@@ -42,7 +42,7 @@ function [ c, ceq ] = constraints( funparams, sp )
             transEC((p-2)*8+1:(p-1)*8) = landState - stateN;
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff
-            transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, toCompvars.fs];
+            transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, toCompvars.grf];
         end
             
         % Offset in the equality parameter vector due to phase
@@ -71,13 +71,13 @@ function [ c, ceq ] = constraints( funparams, sp )
             % Constrain the end state of the current time interval to be
             % equal to the starting state of the next time interval
             phaseEC(pecOffset+(i-1)*8+1:pecOffset+i*8) = stateN - endState;
-            % Constrain the length of the leg, spring force, and head y pos
+            % Constrain the length of the leg, grf, and head y pos
             phaseIC(picOffset+(i-1)*3+1 : picOffset+i*3) = ...
                     [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
-                     -compvarsI.fs];
+                     -compvarsI.grf];
         end
         % Constrain the length of the leg at the end position
-        % No spring force constraint at end
+        % No ground reaction force constraint at end
         phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
                 [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -1];
     end
@@ -85,7 +85,7 @@ function [ c, ceq ] = constraints( funparams, sp )
     c = [phaseIC; transIC];
     ceq = [phaseEC; transEC];
     % Add first phase start constraints
-    ceq = [ceq; xtoe(1)-0.3; xtoedot(1); x(1)-0.3; xdot(1); y(1)-1; ...
+    ceq = [ceq; xtoe(1)-1.1; xtoedot(1); x(1)-1.1; xdot(1); y(1)-1; ...
                 ydot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
     ceq = [ceq; xtoe(end)-x(end)];
