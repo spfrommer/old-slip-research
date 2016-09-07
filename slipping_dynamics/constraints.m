@@ -48,7 +48,7 @@ function [ c, ceq ] = constraints( funparams, sp )
         % Offset in the equality parameter vector due to phase
         pecOffset = 8 * (sp.gridn - 1) * (p - 1);
         % Offset in the inequality parameter vector due to phase
-        picOffset = 4 * (sp.gridn) * (p - 1);
+        picOffset = 3 * (sp.gridn) * (p - 1);
         
         [statedotN, compvarsN] = dynamics(stateN, raddot(ps), ...
                                         torque(ps), sp, phaseStr);
