@@ -1,4 +1,4 @@
 function [ cost ] = constcost( funparams, sp )
-    cost = 1;
+    cost = sym(1);
 end
 

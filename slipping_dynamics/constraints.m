@@ -1,13 +1,13 @@
 function [ c, ceq ] = constraints( funparams, sp )
     % Phase inequality constraints
-    phaseIC = zeros(3 * sp.gridn * length(sp.phases), 1);
+    phaseIC = sym('pic', [1, 3*sp.gridn*length(sp.phases)])';
     % Phase transition inequality constraints
-    transIC = zeros(3 * (length(sp.phases) - 1), 1);
-    
+    transIC = sym('tic', [1, 3*(length(sp.phases)-1)])';
+     
     % Phase equality constraints
-    phaseEC = zeros(8 * (sp.gridn - 1) * length(sp.phases), 1);
+    phaseEC = sym('pec', [1, 8*(sp.gridn-1)*length(sp.phases)])';
     % Phase inequality constraints
-    transEC = zeros(8 * (length(sp.phases) - 1), 1);
+    transEC = sym('tec', [1, 8*(length(sp.phases)-1)])';
     
     % Unpack the parameter vector
     [phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
