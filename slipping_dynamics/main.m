@@ -29,26 +29,18 @@ funparams = conj(sym('x', [1 numVars], 'real')');
 [c, ceq] = constraints(funparams, sp);
 cjac = jacobian(c, funparams).';
 ceqjac = jacobian(ceq, funparams).';
-constraintsFun = matlabFunction(c, ceq, cjac, ceqjac);
+constraintsFun = matlabFunction(c, ceq, cjac, ceqjac, 'Vars', {funparams});
 
 [cost] = constcost(funparams, sp);
 costjac = jacobian(cost, funparams).';
-costFun = matlabFunction(cost, costjac);
+costFun = matlabFunction(cost, costjac, 'Vars', {funparams});
 
-fprintf('Trying: %f\n', r);
+fprintf('Finished generating functions in %f seconds\n', toc);
+tic
 
 % First find any feasible trajectory
-optimal = fmincon(@(x) callExpand(costFun,x,false,2), x0,A,b,Aeq,Beq,lb,ub, ...
-                  @(x) callExpand(constraintsFun,x,true,4), options);
-visualize
-return
-disp('Found feasible trajectory, optimizing...');
-lastTime = timecost(optimal, sp);
-fprintf('Starting trajectory has time of: %f\n', lastTime);
+optimal = fmincon(@(x) call(costFun, x, 2), x0, A, b, Aeq, Beq, lb, ub, ...
+                  @(x) call(constraintsFun, x, 4), options);
 
-% Optimize the trajectory with respect to time
-[optimal,time,flag,~] = fmincon(@(x) timecost(x,sp),optimal,A,b,...
-         Aeq, Beq, lb, ub, @(x) constraints(x, sp), options);
-fprintf('Best time: %f\n', lastTime);
-fprintf('Finished in %f seconds\n', toc);
+fprintf('Finished optimizing in %f seconds\n', toc);
 visualize
