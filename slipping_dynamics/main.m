@@ -30,7 +30,6 @@ funparams = conj(sym('x', [1 numVars], 'real')');
 cjac = jacobian(c, funparams).';
 ceqjac = jacobian(ceq, funparams).';
 constraintsFun = matlabFunction(c, ceq, cjac, ceqjac);
-[cNum, ceqNum, cjacNum, ceqjacNum] = callExpand(constraintsFun,x0,true,4);
 
 [cost] = constcost(funparams, sp);
 constcostFun = matlabFunction(cost);
