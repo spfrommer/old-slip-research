@@ -35,10 +35,12 @@ function [ c, ceq ] = constraints( funparams, sp )
         if p > 1
             % The leg angle and length at the end of the transition
             raend = ra(ps);
-            phiend = mod(atan2(y(ps), x(ps) - xtoe(ps)), 2 * pi);
+            rend = sqrt((x(ps)-xtoe(ps))^2 + y(ps)^2);
+            cphiend = (x(ps)-xtoe(ps)) / rend;
+            sphiend = y(ps) / rend;
             
-            [landState, disc, flightT] = ballistic(toState, raend, ...
-                                                   phiend, sp, phaseStr);
+            [landState, disc, flightT] = ...
+                ballistic(toState, raend, cphiend, sphiend, sp, phaseStr);
             transEC((p-2)*8+1:(p-1)*8) = landState - stateN;
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff

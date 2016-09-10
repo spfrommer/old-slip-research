@@ -41,7 +41,7 @@ x     = interp1(times, x, 0:sp.dt:times(end), 'linear');
 y     = interp1(times, y, 0:sp.dt:times(end), 'linear');
 r     = interp1(times, r, 0:sp.dt:times(end), 'linear');
 times = 0:sp.dt:times(end);
-phi   = mod(atan2(y, x - xtoe), 2 * pi);
+phi   = atan2(y, x - xtoe);
 
 fig = figure(1);
 clf;

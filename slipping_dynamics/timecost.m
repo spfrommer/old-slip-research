@@ -13,8 +13,7 @@ function [ time ] = timecost( funparams, sp )
             endState = [xtoe(ps-1); xtoedot(ps-1); x(ps-1);  xdot(ps-1); ...
                         y(ps-1);    ydot(ps-1);    ra(ps-1); radot(ps-1)];
             raend = ra(ps);
-            phiend = mod(atan2(y(ps), ...
-                         x(ps) - xtoe(ps)), 2 * pi);
+            phiend = atan2(y(ps), x(ps) - xtoe(ps));
             [~, ~, flightT] = ballistic(endState, raend, phiend, sp, phaseStr);
             time = time + flightT;
         end

@@ -70,7 +70,7 @@ function [] = animate( times, xs, ys, phis, lens, sp )
         end
         axis square;
         axis manual;
-        pause(sp.dt * 2);
+        pause(sp.dt * 5);
     end
 end
 
