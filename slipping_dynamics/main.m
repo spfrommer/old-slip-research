@@ -26,9 +26,8 @@ tic
 
 numVars = length(sp.phases)+sp.gridn*length(sp.phases)*10;
 if RESET_X0
-    r = 1.2;
-    x0 = ones(numVars,1) * r;
-    fprintf('Generated new x0 with seed: %f\n', r);
+    x0 = rand(numVars, 1) * 2;
+    fprintf('Generated new x0\n');
 else
     x0 = optimal;
 end
