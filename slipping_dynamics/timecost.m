@@ -20,5 +20,8 @@ function [ time ] = timecost( funparams, sp )
             time = time + flightT;
         end
     end
+    
+    % Add small regularization term to force unique solution
+    time = time + norm(funparams)^2 * 1e-11;
 end
 

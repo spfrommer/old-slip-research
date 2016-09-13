@@ -6,7 +6,7 @@ function [ c, ceq ] = constraints( funparams, sp )
      
     % Phase equality constraints
     phaseEC = sym('pec', [1, 8*(sp.gridn-1)*length(sp.phases)])';
-    % Phase inequality constraints
+    % Phase transition equality constraints
     transEC = sym('tec', [1, 8*(length(sp.phases)-1)])';
     
     % Unpack the parameter vector

@@ -1,3 +1,7 @@
+GEN_CONSTRAINTS = false;
+GEN_COSTS = false;
+RESET_X0 = true;
+
 sp = SimParams();
 
 % Options for fmincon
@@ -8,7 +12,7 @@ options = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'StepTolerance', 1e-13, ...
                        'SpecifyConstraintGradient', true, ...
                        'SpecifyObjectiveGradient', true, ...
-                       'CheckGradients', false, ...
+                       'ConstraintTolerance', 1e-8, ...
                        'FiniteDifferenceType', 'central');
 % No linear inequality or equality constraints
 A = [];
@@ -21,19 +25,27 @@ Beq = [];
 tic
 
 numVars = length(sp.phases)+sp.gridn*length(sp.phases)*10;
-r = rand() * 2;
-r = 0.45;
-x0 = ones(numVars,1) * r;
+if RESET_X0
+    r = 1.2;
+    x0 = ones(numVars,1) * r;
+    fprintf('Generated new x0 with seed: %f\n', r);
+else
+    x0 = optimal;
+end
 funparams = conj(sym('x', [1 numVars], 'real')');
 
-[c, ceq] = constraints(funparams, sp);
-cjac = jacobian(c, funparams).';
-ceqjac = jacobian(ceq, funparams).';
-constraintsFun = matlabFunction(c, ceq, cjac, ceqjac, 'Vars', {funparams});
+if GEN_CONSTRAINTS
+    [c, ceq] = constraints(funparams, sp);
+    cjac = jacobian(c, funparams).';
+    ceqjac = jacobian(ceq, funparams).';
+    constraintsFun = matlabFunction(c, ceq, cjac, ceqjac, 'Vars', {funparams});
+end
 
-[cost] = constcost(funparams, sp);
-costjac = jacobian(cost, funparams).';
-costFun = matlabFunction(cost, costjac, 'Vars', {funparams});
+if GEN_COSTS
+    cost = timecost(funparams, sp);
+    costjac = jacobian(cost, funparams).';
+    costFun = matlabFunction(cost, costjac, 'Vars', {funparams});
+end
 
 fprintf('Finished generating functions in %f seconds\n', toc);
 tic
