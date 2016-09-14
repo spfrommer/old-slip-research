@@ -7,10 +7,10 @@ function [ c, ceq ] = constraints( funparams, sp )
     % Phase equality constraints
     phaseEC = sym('pec', [1, 8*(sp.gridn-1)*length(sp.phases)])';
     % Phase transition equality constraints
-    transEC = sym('tec', [1, 8*(length(sp.phases)-1)])';
+    transEC = sym('tec', [1, 10*(length(sp.phases)-1)])';
     
     % Unpack the parameter vector
-    [phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
+    [phaseT, cTdAngle, sTdAngle, xtoe, xtoedot, x, xdot, y, ydot, ...
         ra, radot, raddot, torque] = unpack(funparams, sp);
     
     % Iterate over all the phases
@@ -36,12 +36,13 @@ function [ c, ceq ] = constraints( funparams, sp )
             % The leg angle and length at the end of the transition
             raend = ra(ps);
             rend = sqrt((x(ps)-xtoe(ps))^2 + y(ps)^2);
-            cphiend = (x(ps)-xtoe(ps)) / rend;
-            sphiend = y(ps) / rend;
+            cend = (x(ps)-xtoe(ps)) / rend;
+            send = y(ps) / rend;
             
             [landState, disc, flightT] = ...
-                ballistic(toState, raend, cphiend, sphiend, sp, phaseStr);
-            transEC((p-2)*8+1:(p-1)*8) = landState - stateN;
+                ballistic(toState, raend, cTdAngle(p-1), sTdAngle(p-1), sp, phaseStr);
+            transEC((p-2)*10+1:(p-1)*10) = [landState - stateN; ...
+                    cend - cTdAngle(p-1); send - sTdAngle(p-1)];
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff
             transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, toCompvars.grf];

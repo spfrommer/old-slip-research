@@ -1,6 +1,6 @@
 function [ time ] = timecost( funparams, sp )
     % Unpack the vector
-    [phaseT, xtoe, xtoedot, x, xdot, y, ydot, ra, radot, ~, ~] = ...
+    [phaseT, cTdAngle, sTdAngle, xtoe, xtoedot, x, xdot, y, ydot, ra, radot, ~, ~] = ...
         unpack(funparams, sp);
         
     % Integrate the time for each phase
@@ -13,10 +13,7 @@ function [ time ] = timecost( funparams, sp )
             endState = [xtoe(ps-1); xtoedot(ps-1); x(ps-1);  xdot(ps-1); ...
                         y(ps-1);    ydot(ps-1);    ra(ps-1); radot(ps-1)];
             raend = ra(ps);
-            rend = sqrt((x(ps)-xtoe(ps))^2 + y(ps)^2);
-            cphiend = (x(ps)-xtoe(ps)) / rend;
-            sphiend = y(ps) / rend;
-            [~, ~, flightT] = ballistic(endState, raend, cphiend, sphiend, sp, phaseStr);
+            [~, ~, flightT] = ballistic(endState, raend, cTdAngle(p-1), sTdAngle(p-1), sp, phaseStr);
             time = time + flightT;
         end
     end

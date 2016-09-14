@@ -1,5 +1,5 @@
 % Unpack the vector
-[phaseT, xtoe, xtoedot, x, xdot, y, ydot, ...
+[phaseT, cTdAngle, sTdAngle, xtoe, xtoedot, x, xdot, y, ydot, ...
     ra, radot, raddot, torque] = unpack(optimal, sp);
 [c, ceq] = constraints(optimal, sp);
 

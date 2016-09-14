@@ -1,7 +1,8 @@
 function [ landState, disc, flightTime ] = ...
     ballistic( toState, raend, cphiend, sphiend, sp, curPhase )
 % Calculates end state xend after flight with xstart state and a desired
-% touchdown angle of phiend with desired touchdown length of raend
+% touchdown angle cos of phiend and touchdown angle sin of phiend
+% with desired touchdown length of raend
 stateCell = num2cell(toState');
 [~, ~, x, xdot, y, ydot, ~, ~] = deal(stateCell{:});
 yend = raend * sphiend;

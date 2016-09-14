@@ -1,6 +1,10 @@
 function [ lb, ub ] = bounds(sp)
 timeMin            = sp.mintime;
 timeMax            = sp.maxtime;
+cTdAngleMin        = -1;
+cTdAngleMax        = 1;
+sTdAngleMin        = -1;
+sTdAngleMax        = 1;
 minXtoedot         = -Inf;
 maxXtoedot         = Inf;
 minX               = -Inf;
@@ -39,12 +43,16 @@ end
 
 grid = ones(sp.gridn * length(sp.phases), 1);
 lb = [ones(length(sp.phases), 1) * timeMin;
+      ones(length(sp.phases) - 1, 1) * cTdAngleMin;
+      ones(length(sp.phases) - 1, 1) * sTdAngleMin;
       minXtoe;        grid*minXtoedot;
       grid*minX;      grid*minXdot;
       grid*minY;      grid*minYdot;
       grid*minRa;     grid*minRadot;
       grid*minRaddot; grid*minTorque;];
 ub = [ones(length(sp.phases), 1) * timeMax;
+      ones(length(sp.phases) - 1, 1) * cTdAngleMax;
+      ones(length(sp.phases) - 1, 1) * sTdAngleMax;
       maxXtoe;        grid*maxXtoedot;
       grid*maxX;      grid*maxXdot;
       grid*maxY;      grid*maxYdot;

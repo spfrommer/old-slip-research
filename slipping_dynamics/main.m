@@ -24,7 +24,8 @@ Beq = [];
 
 tic
 
-numVars = length(sp.phases)+sp.gridn*length(sp.phases)*10;
+numVars = length(sp.phases) + 2 * (length(sp.phases)-1) + ...
+          sp.gridn * length(sp.phases) * 10;
 if RESET_X0
     x0 = rand(numVars, 1) * 2;
     fprintf('Generated new x0\n');
