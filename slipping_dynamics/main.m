@@ -7,7 +7,7 @@ sp = SimParams();
 cOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'MaxIterations', 100000, ...
                        'MaxFunEvals', 50000, ...
-                       'Display', 'none', 'Algorithm', 'sqp', ...
+                       'Display', 'iter', 'Algorithm', 'sqp', ...
                        'StepTolerance', 1e-13, ...
                        'SpecifyConstraintGradient', true, ...
                        'SpecifyObjectiveGradient', true, ...
@@ -49,7 +49,7 @@ if GEN_COSTS
     ccostjac = jacobian(ccost, funparams).';
     ccostFun = matlabFunction(ccost, ccostjac, 'Vars', {funparams});
 
-    acost = timecost(funparams, sp);
+    acost = actcost(funparams, sp);
     acostjac = jacobian(acost, funparams).';
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
 end
@@ -58,7 +58,7 @@ numBest = 5;
 bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
-for i = 1:300
+for i = 1:5
     x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
@@ -96,7 +96,7 @@ optimalCosts = zeros(1, numBest);
 for i=1:numBest
     optimal = fmincon(@(x) call(acostFun, x, 2),bestTrajs(:,i),A,b,Aeq,Beq,lb,ub, ...
                       @(x) call(constraintsFun, x, 4),aOptions);
-    optcost = timecost(optimal, sp);
+    optcost = actcost(optimal, sp);
     optimalTrajs(:, i) = optimal;
     optimalCosts(i) = optcost;
 end
