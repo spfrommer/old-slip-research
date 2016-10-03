@@ -1,10 +1,6 @@
 function [ lb, ub ] = bounds(sp)
 timeMin            = sp.mintime;
 timeMax            = sp.maxtime;
-cTdAngleMin        = -1;
-cTdAngleMax        = 1;
-sTdAngleMin        = -1;
-sTdAngleMax        = 1;
 minXtoedot         = -Inf;
 maxXtoedot         = Inf;
 minX               = -Inf;
@@ -23,6 +19,10 @@ minRaddot          = sp.minraddot;
 maxRaddot          = sp.maxraddot;
 minTorque          = sp.mintorque;
 maxTorque          = sp.maxtorque;
+cTdAngleMin        = -Inf;
+cTdAngleMax        = Inf;
+sTdAngleMin        = -Inf;
+sTdAngleMax        = Inf;
 
 minXtoe = [];
 maxXtoe = [];
@@ -33,11 +33,13 @@ for p=1:length(sp.phases)
         minXtoe = [minXtoe; ones(sp.gridn, 1) * sp.slipPatch(1)];
         maxXtoe = [maxXtoe; ones(sp.gridn, 1) * sp.slipPatch(2)];
     elseif strcmp(phase, 'stl')
-        minXtoe = [minXtoe; ones(sp.gridn, 1) * (sp.slipPatch(1)-0.2)];
+        %minXtoe = [minXtoe; ones(sp.gridn, 1) * (sp.slipPatch(1)-0.2)];
+        minXtoe = [minXtoe; ones(sp.gridn, 1) * -Inf];
         maxXtoe = [maxXtoe; ones(sp.gridn, 1) * sp.slipPatch(1)];
     elseif strcmp(phase, 'str')
         minXtoe = [minXtoe; ones(sp.gridn, 1) * sp.slipPatch(2)];
-        maxXtoe = [maxXtoe; ones(sp.gridn, 1) * (sp.slipPatch(2)+0.2)];
+        %maxXtoe = [maxXtoe; ones(sp.gridn, 1) * (sp.slipPatch(2)+0.2)];
+        maxXtoe = [maxXtoe; ones(sp.gridn, 1) * Inf];
     end
 end
 

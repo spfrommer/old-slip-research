@@ -1,18 +1,27 @@
-GEN_CONSTRAINTS = false;
+GEN_CONSTRAINTS = true;
 GEN_COSTS = false;
-RESET_X0 = true;
 
 sp = SimParams();
 
-% Options for fmincon
-options = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
-                       'MaxIterations', 10000, ...
+% Options for optimizing the constant cost function
+cOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
+                       'MaxIterations', 100000, ...
+                       'MaxFunEvals', 50000, ...
+                       'Display', 'iter', 'Algorithm', 'sqp', ...
+                       'StepTolerance', 1e-13, ...
+                       'SpecifyConstraintGradient', true, ...
+                       'SpecifyObjectiveGradient', true, ...
+                       'ConstraintTolerance', 1e-6, ...
+                       'FiniteDifferenceType', 'central');
+% Options for optimizing the actual cost function
+aOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
+                       'MaxIterations', 300, ...
                        'MaxFunEvals', 1000000, ...
                        'Display', 'iter', 'Algorithm', 'sqp', ...
                        'StepTolerance', 1e-13, ...
                        'SpecifyConstraintGradient', true, ...
                        'SpecifyObjectiveGradient', true, ...
-                       'ConstraintTolerance', 1e-8, ...
+                       'ConstraintTolerance', 1e-6, ...
                        'FiniteDifferenceType', 'central');
 % No linear inequality or equality constraints
 A = [];
@@ -26,12 +35,6 @@ tic
 
 numVars = length(sp.phases) + 2 * (length(sp.phases)-1) + ...
           sp.gridn * length(sp.phases) * 10;
-if RESET_X0
-    x0 = rand(numVars, 1) * 2;
-    fprintf('Generated new x0\n');
-else
-    x0 = optimal;
-end
 funparams = conj(sym('x', [1 numVars], 'real')');
 
 if GEN_CONSTRAINTS
@@ -42,17 +45,61 @@ if GEN_CONSTRAINTS
 end
 
 if GEN_COSTS
-    cost = timecost(funparams, sp);
-    costjac = jacobian(cost, funparams).';
-    costFun = matlabFunction(cost, costjac, 'Vars', {funparams});
+    ccost = constcost(funparams, sp);
+    ccostjac = jacobian(ccost, funparams).';
+    ccostFun = matlabFunction(ccost, ccostjac, 'Vars', {funparams});
+
+    acost = actcost(funparams, sp);
+    acostjac = jacobian(acost, funparams).';
+    acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
 end
 
-fprintf('Finished generating functions in %f seconds\n', toc);
+numBest = 5;
+bestCosts = inf(1, numBest);
+bestTrajs = zeros(numVars, numBest);
+
+for i = 1:5
+    x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
+    [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
+    while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
+          any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...
+          any(isinf(ci)) || any(isinf(ceqi)) || any(any(isinf(cjaci))) || any(any(isinf(ceqjaci)))
+        x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
+        [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
+    end
+    
+    % Find any feasible trajectory
+    [feasible, ~, flag, ~] = ...
+        fmincon(@(x) call(ccostFun, x, 2),x0,A,b,Aeq,Beq,lb,ub, ...
+                @(x) call(constraintsFun, x, 4), cOptions);
+    
+    if flag > 0
+        act = actcost(feasible, sp);
+        [minCost, index] = max(bestCosts);
+        if act < minCost
+            bestCosts(index) = act;
+            bestTrajs(:, index) = feasible;
+        end
+    else
+        fprintf('Exited with non-positive flag: %d\n', flag);
+        i = i - 1;
+    end
+end
+
+fprintf('Finished finding feasible trajectories in %f seconds\n', toc);
+fprintf('Best trajectory has act cost of: %f\n', bestCosts);
 tic
 
-% First find any feasible trajectory
-optimal = fmincon(@(x) call(costFun, x, 2), x0, A, b, Aeq, Beq, lb, ub, ...
-                  @(x) call(constraintsFun, x, 4), options);
+optimalTrajs = zeros(numVars, numBest);
+optimalCosts = zeros(1, numBest);
+
+for i=1:numBest
+    optimal = fmincon(@(x) call(acostFun, x, 2),bestTrajs(:,i),A,b,Aeq,Beq,lb,ub, ...
+                      @(x) call(constraintsFun, x, 4),aOptions);
+    optcost = actcost(optimal, sp);
+    optimalTrajs(:, i) = optimal;
+    optimalCosts(i) = optcost;
+end
 
 fprintf('Finished optimizing in %f seconds\n', toc);
 visualize
