@@ -1,5 +1,5 @@
 GEN_CONSTRAINTS = true;
-GEN_COSTS = false;
+GEN_COSTS = true;
 
 sp = SimParams();
 
@@ -15,7 +15,7 @@ cOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'FiniteDifferenceType', 'central');
 % Options for optimizing the actual cost function
 aOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
-                       'MaxIterations', 300, ...
+                       'MaxIterations', 1000, ...
                        'MaxFunEvals', 1000000, ...
                        'Display', 'iter', 'Algorithm', 'sqp', ...
                        'StepTolerance', 1e-13, ...
@@ -33,8 +33,8 @@ Beq = [];
 
 tic
 
-numVars = length(sp.phases) + 2 * (length(sp.phases)-1) + ...
-          sp.gridn * length(sp.phases) * 10;
+numVars = size(sp.phases, 1) + 2 * (size(sp.phases, 1) - 1) + ...
+          sp.gridn * size(sp.phases, 1) * 8;
 funparams = conj(sym('x', [1 numVars], 'real')');
 
 if GEN_CONSTRAINTS
@@ -54,11 +54,12 @@ if GEN_COSTS
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
 end
 
-numBest = 5;
+
+numBest = 3;
 bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
-for i = 1:5
+for i = 1:0
     x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
@@ -82,7 +83,6 @@ for i = 1:5
         end
     else
         fprintf('Exited with non-positive flag: %d\n', flag);
-        i = i - 1;
     end
 end
 
@@ -93,12 +93,25 @@ tic
 optimalTrajs = zeros(numVars, numBest);
 optimalCosts = zeros(1, numBest);
 
-for i=1:numBest
-    optimal = fmincon(@(x) call(acostFun, x, 2),bestTrajs(:,i),A,b,Aeq,Beq,lb,ub, ...
-                      @(x) call(constraintsFun, x, 4),aOptions);
-    optcost = actcost(optimal, sp);
-    optimalTrajs(:, i) = optimal;
-    optimalCosts(i) = optcost;
+for i = 1:numBest
+    %x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
+    %optimal = fmincon(@(x) call(acostFun, x, 2),x0,A,b,Aeq,Beq,lb,ub, ...
+    %                  @(x) call(constraintsFun, x, 4),aOptions);
+    optimalTrajs(:, i) = bestTrajs(:, i);
+    optimalCosts(i) = actcost(optimalTrajs(:, i), sp);
+    flag = 1;
+    lastCost = Inf;
+    while flag >= 0 && optimalCosts(i) - lastCost < -1e-2
+        lastCost = optimalCosts(i);
+        [newOptimal, ~, flag, ~] = ...
+            fmincon(@(x) call(acostFun, x, 2),optimalTrajs(:,i),A,b, ...
+                    Aeq,Beq,lb,ub,@(x) call(constraintsFun,x,4),aOptions);
+        
+        if flag >= 0
+            optimalTrajs(:, i) = newOptimal;
+            optimalCosts(i) = actcost(optimalTrajs(:, i), sp);
+        end
+    end
 end
 
 fprintf('Finished optimizing in %f seconds\n', toc);

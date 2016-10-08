@@ -1,8 +1,8 @@
 function [ cost ] = actcost( funparams, sp )
     % Unpack the vector
-    [~, ~, ~, ~, ~, ~, ~, ~, ~, raddot, hiptorque] = ...
+    [~, ~, ~, ~, ~, ~, ~, ~, ~, ~, raddot] = ...
         unpack(funparams, sp);
         
-    cost = sum((hiptorque./10).^2) + sum(raddot.^2);
+    cost = sum(raddot.^2);
 end
 

@@ -1,6 +1,6 @@
 % Unpack the vector
-[phaseT, cTdAngle, sTdAngle, xtoe, xtoedot, x, xdot, y, ydot, ...
-    ra, radot, raddot, torque] = unpack(optimal, sp);
+[phaseT, cTdAngle, sTdAngle, xtoe, x, xdot, y, ydot, ...
+    ra, radot, raddot] = unpack(optimal, sp);
 [c, ceq] = constraints(optimal, sp);
 
 % Calculate leg lengths and angles
@@ -11,14 +11,13 @@ times = 0 : phaseT(1)/sp.gridn : phaseT(1);
 times = times(1:end-1);
 
 i = sp.gridn + 1;
-for p = 1 : length(sp.phases) - 1
+for p = 1 : size(sp.phases, 1) - 1
     % Interpolate ballistic flight
     disc = ydot(i-1)^2 - 2 * sp.gravity * (y(i) - y(i-1));
     flightTime = (-1/sp.gravity) * (-ydot(i-1) - real(sqrt(disc)));
     time = 0;
     while time < flightTime - sp.dt
-        xtoe = [xtoe(1:i-1); (xtoe(i-1)+xtoedot(i-1)*sp.dt); xtoe(i:end)];
-        xtoedot = [xtoedot(1:i-1); xtoedot(i-1); xtoedot(i:end)];
+        xtoe = [xtoe(1:i-1); xtoe(i-1); xtoe(i:end)];
         x = [x(1:i-1); (x(i-1)+xdot(i-1)*sp.dt); x(i:end)];
         xdot = [xdot(1:i-1); xdot(i-1); xdot(i:end)];
         y = [y(1:i-1); (y(i-1)+ydot(i-1)*sp.dt); y(i:end)];
@@ -37,11 +36,11 @@ for p = 1 : length(sp.phases) - 1
 end
 
 
-xtoe  = interp1(times, xtoe, 0:sp.dt:times(end), 'linear');
-x     = interp1(times, x, 0:sp.dt:times(end), 'linear');
-y     = interp1(times, y, 0:sp.dt:times(end), 'linear');
-r     = interp1(times, r, 0:sp.dt:times(end), 'linear');
-times = 0:sp.dt:times(end);
+%xtoe  = interp1(times, xtoe, 0:sp.dt:times(end), 'linear');
+%x     = interp1(times, x, 0:sp.dt:times(end), 'linear');
+%y     = interp1(times, y, 0:sp.dt:times(end), 'linear');
+%r     = interp1(times, r, 0:sp.dt:times(end), 'linear');
+%times = 0:sp.dt:times(end);
 phi   = atan2(y, x - xtoe);
 
 fig = figure(1);

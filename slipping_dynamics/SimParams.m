@@ -17,8 +17,8 @@ classdef SimParams < handle
 
         mintime = 0.1;      % Minimum stance phase time
         maxtime = 5;        % Maximum stance phase time
-        minraddot = -1;     % Minimum second derivative of actuated length
-        maxraddot = 1;      % Maximum second derivative of actuated length
+        minraddot = -100;   % Minimum second derivative of actuated length
+        maxraddot = 100;    % Maximum second derivative of actuated length
         mintorque = -100;   % Minimum torque at hip
         maxtorque = 100;    % Maximum torque at hip
 

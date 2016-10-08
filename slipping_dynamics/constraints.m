@@ -1,21 +1,20 @@
 function [ c, ceq ] = constraints( funparams, sp )
     % Phase inequality constraints
-    phaseIC = sym('pic', [1, 3*sp.gridn*length(sp.phases)])';
+    phaseIC = sym('pic', [1, 3*sp.gridn*size(sp.phases, 1)])';
     % Phase transition inequality constraints
-    transIC = sym('tic', [1, 3*(length(sp.phases)-1)])';
+    transIC = sym('tic', [1, 3*(size(sp.phases, 1)-1)])';
      
     % Phase equality constraints
-    phaseEC = sym('pec', [1, 8*(sp.gridn-1)*length(sp.phases)])';
+    phaseEC = sym('pec', [1, 7*(sp.gridn-1)*size(sp.phases, 1)])';
     % Phase transition equality constraints
-    transEC = sym('tec', [1, 10*(length(sp.phases)-1)])';
+    transEC = sym('tec', [1, 9*(size(sp.phases, 1)-1)])';
     
     % Unpack the parameter vector
-    [phaseT, cTdAngle, sTdAngle, xtoe, xtoedot, x, xdot, y, ydot, ...
-        ra, radot, raddot, torque] = unpack(funparams, sp);
+    [phaseT, cTdAngle, sTdAngle, xtoe, x, xdot, y, ydot, ...
+        ra, radot, raddot] = unpack(funparams, sp);
     
     % Iterate over all the phases
-    for p = 1 : length(sp.phases)
-        phaseStr = sp.phases(p, :);
+    for p = 1 : size(sp.phases, 1)
         % The index of the first dynamics variable for the current phase
         ps = (p - 1) * sp.gridn + 1;
         
@@ -28,7 +27,7 @@ function [ c, ceq ] = constraints( funparams, sp )
             toCompvars = compvarsN;
         end
         
-        stateN = [xtoe(ps); xtoedot(ps); x(ps);  xdot(ps); ...
+        stateN = [xtoe(ps); x(ps);  xdot(ps); ...
                   y(ps);    ydot(ps);    ra(ps); radot(ps)];
         
         % Link ballistic trajectory from end of last phase to this phase
@@ -40,8 +39,8 @@ function [ c, ceq ] = constraints( funparams, sp )
             send = y(ps) / rend;
             
             [landState, disc, flightT] = ...
-                ballistic(toState, raend, cTdAngle(p-1), sTdAngle(p-1), sp, phaseStr);
-            transEC((p-2)*10+1:(p-1)*10) = [landState - stateN; ...
+                ballistic(toState, raend, cTdAngle(p-1), sTdAngle(p-1), sp);
+            transEC((p-2)*9+1:(p-1)*9) = [landState - stateN; ...
                     cend - cTdAngle(p-1); send - sTdAngle(p-1)];
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff
@@ -49,32 +48,32 @@ function [ c, ceq ] = constraints( funparams, sp )
         end
             
         % Offset in the equality parameter vector due to phase
-        pecOffset = 8 * (sp.gridn - 1) * (p - 1);
+        pecOffset = 7 * (sp.gridn - 1) * (p - 1);
         % Offset in the inequality parameter vector due to phase
         picOffset = 3 * (sp.gridn) * (p - 1);
         
         [statedotN, compvarsN] = dynamics(stateN, raddot(ps), ...
-                                        torque(ps), sp, phaseStr);
+                                          sp);
         for i = 1 : sp.gridn - 1
             % The state at the beginning of the time interval
             stateI = stateN;
             % What the state should be at the end of the time interval
-            stateN = [xtoe(ps+i); xtoedot(ps+i); x(ps+i);  xdot(ps+i); ...
+            stateN = [xtoe(ps+i); x(ps+i);  xdot(ps+i); ...
                       y(ps+i);    ydot(ps+i);    ra(ps+i); radot(ps+i)];
             % The state derivative at the beginning of the time interval
             statedotI = statedotN;
             compvarsI = compvarsN;
             % The state derivative at the end of the time interval
             [statedotN, compvarsN] = ...
-                dynamics(stateN, raddot(ps+i), torque(ps+i), sp, phaseStr);
+                dynamics(stateN, raddot(ps+i), sp);
 
             % The end position of the time interval calculated using quadrature
             endState = stateI + dt * (statedotI + statedotN) / 2;
             
             % Constrain the end state of the current time interval to be
             % equal to the starting state of the next time interval
-            phaseEC(pecOffset+(i-1)*8+1:pecOffset+i*8) = stateN - endState;
-            % Constrain the length of the leg, grf, and head y pos
+            phaseEC(pecOffset+(i-1)*7+1:pecOffset+i*7) = stateN - endState;
+            % Constrain the length of the leg, grf, and body y pos
             phaseIC(picOffset+(i-1)*3+1 : picOffset+i*3) = ...
                     [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
                      -compvarsI.grf];
@@ -88,8 +87,9 @@ function [ c, ceq ] = constraints( funparams, sp )
     c = [phaseIC; transIC];
     ceq = [phaseEC; transEC];
     % Add first phase start constraints
-    ceq = [ceq; xtoe(1)-0.1; xtoedot(1); x(1)-0.1; xdot(1); y(1)-1; ...
-                ydot(1); ra(1) - 1; radot(1)];
+    %ceq = [ceq; xtoe(1)-0.1; x(1)-0.1; xdot(1); y(1)-1; ...
+    %            ydot(1); ra(1) - 1; radot(1)];
+    ceq = [ceq; xtoe(1) - 0.1; x(1) - 0.2; xdot(1); ydot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; x(end)-2.1; xtoe(end)-2.1];
+    ceq = [ceq; x(end)-0.5];
 end

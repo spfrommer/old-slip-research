@@ -1,8 +1,6 @@
 function [ lb, ub ] = bounds(sp)
 timeMin            = sp.mintime;
 timeMax            = sp.maxtime;
-minXtoedot         = -Inf;
-maxXtoedot         = Inf;
 minX               = -Inf;
 maxX               = Inf;
 minXdot            = -Inf;
@@ -17,8 +15,6 @@ minRadot           = -Inf;
 maxRadot           = Inf;
 minRaddot          = sp.minraddot;
 maxRaddot          = sp.maxraddot;
-minTorque          = sp.mintorque;
-maxTorque          = sp.maxtorque;
 cTdAngleMin        = -Inf;
 cTdAngleMax        = Inf;
 sTdAngleMin        = -Inf;
@@ -27,7 +23,7 @@ sTdAngleMax        = Inf;
 minXtoe = [];
 maxXtoe = [];
 
-for p=1:length(sp.phases)
+for p=1:size(sp.phases, 1)
     phase = sp.phases(p, :);
     if strcmp(phase, 'sli')
         minXtoe = [minXtoe; ones(sp.gridn, 1) * sp.slipPatch(1)];
@@ -43,22 +39,22 @@ for p=1:length(sp.phases)
     end
 end
 
-grid = ones(sp.gridn * length(sp.phases), 1);
-lb = [ones(length(sp.phases), 1) * timeMin;
-      ones(length(sp.phases) - 1, 1) * cTdAngleMin;
-      ones(length(sp.phases) - 1, 1) * sTdAngleMin;
-      minXtoe;        grid*minXtoedot;
+grid = ones(sp.gridn * size(sp.phases, 1), 1);
+lb = [ones(size(sp.phases, 1), 1) * timeMin;
+      ones(size(sp.phases, 1) - 1, 1) * cTdAngleMin;
+      ones(size(sp.phases, 1) - 1, 1) * sTdAngleMin;
+      minXtoe;
       grid*minX;      grid*minXdot;
       grid*minY;      grid*minYdot;
       grid*minRa;     grid*minRadot;
-      grid*minRaddot; grid*minTorque;];
-ub = [ones(length(sp.phases), 1) * timeMax;
-      ones(length(sp.phases) - 1, 1) * cTdAngleMax;
-      ones(length(sp.phases) - 1, 1) * sTdAngleMax;
-      maxXtoe;        grid*maxXtoedot;
+      grid*minRaddot];
+ub = [ones(size(sp.phases, 1), 1) * timeMax;
+      ones(size(sp.phases, 1) - 1, 1) * cTdAngleMax;
+      ones(size(sp.phases, 1) - 1, 1) * sTdAngleMax;
+      maxXtoe;
       grid*maxX;      grid*maxXdot;
       grid*maxY;      grid*maxYdot;
       grid*maxRa;     grid*maxRadot;
-      grid*maxRaddot; grid*maxTorque];
+      grid*maxRaddot];
 end
 
