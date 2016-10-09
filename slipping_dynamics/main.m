@@ -1,4 +1,4 @@
-GEN_CONSTRAINTS = true;
+GEN_CONSTRAINTS = false;
 GEN_COSTS = true;
 
 sp = SimParams();
@@ -12,7 +12,7 @@ cOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'SpecifyConstraintGradient', true, ...
                        'SpecifyObjectiveGradient', true, ...
                        'ConstraintTolerance', 1e-6, ...
-                       'FiniteDifferenceType', 'central');
+                       'FiniteDifferenceType', 'forward');
 % Options for optimizing the actual cost function
 aOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'MaxIterations', 1000, ...
@@ -22,7 +22,7 @@ aOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'SpecifyConstraintGradient', true, ...
                        'SpecifyObjectiveGradient', true, ...
                        'ConstraintTolerance', 1e-6, ...
-                       'FiniteDifferenceType', 'central');
+                       'FiniteDifferenceType', 'forward');
 % No linear inequality or equality constraints
 A = [];
 b = [];
@@ -55,12 +55,12 @@ if GEN_COSTS
 end
 
 
-numBest = 3;
+numBest = 1;
 bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
-for i = 1:0
-    x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
+for i = 1:1
+    x0 = MinMaxCheck(lb, ub, ones(numVars, 1));
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
           any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...

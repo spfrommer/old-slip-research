@@ -89,7 +89,7 @@ function [ c, ceq ] = constraints( funparams, sp )
     % Add first phase start constraints
     %ceq = [ceq; xtoe(1)-0.1; x(1)-0.1; xdot(1); y(1)-1; ...
     %            ydot(1); ra(1) - 1; radot(1)];
-    ceq = [ceq; xtoe(1) - 0.1; x(1) - 0.2; xdot(1); ydot(1); ra(1) - 1; radot(1)];
+    ceq = [ceq; x(1) - 0.1; ydot(1); ra(1) - 1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; x(end)-0.5];
+    ceq = [ceq; x(end) - 3];
 end
