@@ -1,6 +1,8 @@
 function [ lb, ub ] = bounds(sp)
-timeMin            = sp.mintime;
-timeMax            = sp.maxtime;
+stanceTimeMin      = sp.minStanceTime;
+stanceTimeMax      = sp.maxStanceTime;
+flightTimeMin      = sp.minFlightTime;
+flightTimeMax      = sp.maxFlightTime;
 minX               = -Inf;
 maxX               = Inf;
 minXdot            = -Inf;
@@ -15,10 +17,6 @@ minRadot           = -Inf;
 maxRadot           = Inf;
 minRaddot          = sp.minraddot;
 maxRaddot          = sp.maxraddot;
-cTdAngleMin        = -Inf;
-cTdAngleMax        = Inf;
-sTdAngleMin        = -Inf;
-sTdAngleMax        = Inf;
 
 minXtoe = [];
 maxXtoe = [];
@@ -39,22 +37,22 @@ for p=1:size(sp.phases, 1)
     end
 end
 
-grid = ones(sp.gridn * size(sp.phases, 1), 1);
-lb = [ones(size(sp.phases, 1), 1) * timeMin;
-      ones(size(sp.phases, 1) - 1, 1) * cTdAngleMin;
-      ones(size(sp.phases, 1) - 1, 1) * sTdAngleMin;
+stanceTimeVars = ones(size(sp.phases, 1), 1);
+flightTimeVars = ones(size(sp.phases, 1) - 1, 1);
+gridVars = ones(sp.gridn * size(sp.phases, 1), 1);
+
+lb = [stanceTimeVars * stanceTimeMin; flightTimeVars * flightTimeMin;
       minXtoe;
-      grid*minX;      grid*minXdot;
-      grid*minY;      grid*minYdot;
-      grid*minRa;     grid*minRadot;
-      grid*minRaddot];
-ub = [ones(size(sp.phases, 1), 1) * timeMax;
-      ones(size(sp.phases, 1) - 1, 1) * cTdAngleMax;
-      ones(size(sp.phases, 1) - 1, 1) * sTdAngleMax;
+      gridVars * minX;          gridVars * minXdot;
+      gridVars * minY;          gridVars * minYdot;
+      gridVars * minRa;         gridVars * minRadot;
+      gridVars * minRaddot];
+  
+ub = [stanceTimeVars * stanceTimeMax; flightTimeVars * flightTimeMax;
       maxXtoe;
-      grid*maxX;      grid*maxXdot;
-      grid*maxY;      grid*maxYdot;
-      grid*maxRa;     grid*maxRadot;
-      grid*maxRaddot];
+      gridVars*maxX;      gridVars*maxXdot;
+      gridVars*maxY;      gridVars*maxYdot;
+      gridVars*maxRa;     gridVars*maxRadot;
+      gridVars*maxRaddot];
 end
 

@@ -7,11 +7,11 @@ function [ c, ceq ] = constraints( funparams, sp )
     % Phase equality constraints
     phaseEC = sym('pec', [1, 7*(sp.gridn-1)*size(sp.phases, 1)])';
     % Phase transition equality constraints
-    transEC = sym('tec', [1, 9*(size(sp.phases, 1)-1)])';
+    transEC = sym('tec', [1, 6*(size(sp.phases, 1)-1)])';
     
     % Unpack the parameter vector
-    [phaseT, cTdAngle, sTdAngle, xtoe, x, xdot, y, ydot, ...
-        ra, radot, raddot] = unpack(funparams, sp);
+    [ stanceT, flightT, xtoe, x, xdot, y, ydot, ...
+           ra, radot, raddot] = unpack(funparams, sp);
     
     % Iterate over all the phases
     for p = 1 : size(sp.phases, 1)
@@ -19,7 +19,7 @@ function [ c, ceq ] = constraints( funparams, sp )
         ps = (p - 1) * sp.gridn + 1;
         
         % Calculate the timestep for that specific phase
-        dt = phaseT(p) / sp.gridn;
+        dt = stanceT(p) / sp.gridn;
         
         % Take off state at the end of the last phase
         if p > 1
@@ -27,24 +27,21 @@ function [ c, ceq ] = constraints( funparams, sp )
             toCompvars = compvarsN;
         end
         
-        stateN = [xtoe(ps); x(ps);  xdot(ps); ...
-                  y(ps);    ydot(ps);    ra(ps); radot(ps)];
+        stateN = [xtoe(ps); x(ps);      xdot(ps);   ...
+                  y(ps);    ydot(ps);   ra(ps);     radot(ps)];
         
         % Link ballistic trajectory from end of last phase to this phase
         if p > 1
-            % The leg angle and length at the end of the transition
-            raend = ra(ps);
-            rend = sqrt((x(ps)-xtoe(ps))^2 + y(ps)^2);
-            cend = (x(ps)-xtoe(ps)) / rend;
-            send = y(ps) / rend;
+            rend = sqrt((x(ps) - xtoe(ps))^2 + y(ps)^2);
             
-            [landState, disc, flightT] = ...
-                ballistic(toState, raend, cTdAngle(p-1), sTdAngle(p-1), sp);
-            transEC((p-2)*9+1:(p-1)*9) = [landState - stateN; ...
-                    cend - cTdAngle(p-1); send - sTdAngle(p-1)];
+            [xland, xdotland, yland, ydotland] = ...
+                ballistic(toState, flightT(p-1), sp);
+            transEC((p-2)*6+1 : (p-1)*6) = [xland-x(ps); ...
+                    xdotland-xdot(ps); yland-y(ps); ydotland-ydot(ps); ...
+                    ra(ps) - rend; radot(ps)];
             % Constrain discriminant to be positive, flight time to be
             % nonnegative, and spring to be noncompressed at takeoff
-            transIC((p-2)*3+1:(p-1)*3) = [-disc, -flightT, toCompvars.grf];
+            transIC((p-2)*3+1:(p-1)*3) = [toCompvars.grf; -1; -1];
         end
             
         % Offset in the equality parameter vector due to phase

@@ -1,5 +1,5 @@
 GEN_CONSTRAINTS = false;
-GEN_COSTS = true;
+GEN_COSTS = false;
 
 sp = SimParams();
 
@@ -33,7 +33,7 @@ Beq = [];
 
 tic
 
-numVars = size(sp.phases, 1) + 2 * (size(sp.phases, 1) - 1) + ...
+numVars = size(sp.phases, 1) * 2 - 1 + ...
           sp.gridn * size(sp.phases, 1) * 8;
 funparams = conj(sym('x', [1 numVars], 'real')');
 
@@ -65,6 +65,7 @@ for i = 1:1
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
           any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...
           any(isinf(ci)) || any(isinf(ceqi)) || any(any(isinf(cjaci))) || any(any(isinf(ceqjaci)))
+        fprintf('Regenerating initial guess...\n');
         x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
         [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     end
@@ -94,9 +95,6 @@ optimalTrajs = zeros(numVars, numBest);
 optimalCosts = zeros(1, numBest);
 
 for i = 1:numBest
-    %x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
-    %optimal = fmincon(@(x) call(acostFun, x, 2),x0,A,b,Aeq,Beq,lb,ub, ...
-    %                  @(x) call(constraintsFun, x, 4),aOptions);
     optimalTrajs(:, i) = bestTrajs(:, i);
     optimalCosts(i) = actcost(optimalTrajs(:, i), sp);
     flag = 1;
