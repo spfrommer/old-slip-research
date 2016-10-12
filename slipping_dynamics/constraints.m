@@ -1,13 +1,11 @@
 function [ c, ceq ] = constraints( funparams, sp )
     % Phase inequality constraints
     phaseIC = sym('pic', [1, 3*sp.gridn*size(sp.phases, 1)])';
-    % Phase transition inequality constraints
-    transIC = sym('tic', [1, 3*(size(sp.phases, 1)-1)])';
      
     % Phase equality constraints
     phaseEC = sym('pec', [1, 7*(sp.gridn-1)*size(sp.phases, 1)])';
     % Phase transition equality constraints
-    transEC = sym('tec', [1, 6*(size(sp.phases, 1)-1)])';
+    transEC = sym('tec', [1, 7*(size(sp.phases, 1)-1)])';
     
     % Unpack the parameter vector
     [ stanceT, flightT, xtoe, x, xdot, y, ydot, ...
@@ -32,16 +30,14 @@ function [ c, ceq ] = constraints( funparams, sp )
         
         % Link ballistic trajectory from end of last phase to this phase
         if p > 1
-            rend = sqrt((x(ps) - xtoe(ps))^2 + y(ps)^2);
+            rland = sqrt((x(ps) - xtoe(ps))^2 + y(ps)^2);
             
             [xland, xdotland, yland, ydotland] = ...
                 ballistic(toState, flightT(p-1), sp);
-            transEC((p-2)*6+1 : (p-1)*6) = [xland-x(ps); ...
+            % Grf must equal zero at takeoff
+            transEC((p-2)*7+1 : (p-1)*7) = [xland-x(ps); ...
                     xdotland-xdot(ps); yland-y(ps); ydotland-ydot(ps); ...
-                    ra(ps) - rend; radot(ps)];
-            % Constrain discriminant to be positive, flight time to be
-            % nonnegative, and spring to be noncompressed at takeoff
-            transIC((p-2)*3+1:(p-1)*3) = [toCompvars.grf; -1; -1];
+                    ra(ps) - rland; radot(ps); toCompvars.grf];
         end
             
         % Offset in the equality parameter vector due to phase
@@ -81,12 +77,13 @@ function [ c, ceq ] = constraints( funparams, sp )
                 [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -1];
     end
     
-    c = [phaseIC; transIC];
+    c = phaseIC;
     ceq = [phaseEC; transEC];
     % Add first phase start constraints
     %ceq = [ceq; xtoe(1)-0.1; x(1)-0.1; xdot(1); y(1)-1; ...
     %            ydot(1); ra(1) - 1; radot(1)];
-    ceq = [ceq; x(1) - 0.1; ydot(1); ra(1) - 1; radot(1)];
+    r1 =  sqrt((x(1) - xtoe(1))^2 + y(1)^2);
+    ceq = [ceq; x(1) - 0.1; xdot(1); ydot(1); ra(1) - r1; radot(1)];
     % Add lastphase end constraints
     ceq = [ceq; x(end) - 3];
 end
