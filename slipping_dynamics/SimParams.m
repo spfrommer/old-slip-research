@@ -10,17 +10,17 @@ classdef SimParams < handle
         masstoe = 0.1;      % Mass of the toe in kilograms
         spring = 20;        % Spring coefficient
         damp = 0.5;         % Damping coefficient
-        gravity = 9.81;     % Gravity (m/s^2)
+        gravity = 1;     % Gravity
         % Friction coefficient between toe and ground on slippery surfaces
         friction = 0.05;     
         dt = 0.01;          % Time step for visualization
 
-        minStanceTime = 0.1;    % Minimum stance phase time
+        minStanceTime = 0.5;   % Minimum stance phase time
         maxStanceTime = 5;      % Maximum stance phase time
         minFlightTime = 0;      % Minimum flight phase time
         maxFlightTime = 5;      % Maximum flight phase time
-        minraddot = -100;       % Minimum second derivative of actuated length
-        maxraddot = 100;        % Maximum second derivative of actuated length
+        minraddot = -1;         % Minimum second derivative of actuated length
+        maxraddot = 1;          % Maximum second derivative of actuated length
         mintorque = -100;       % Minimum torque at hip
         maxtorque = 100;        % Maximum torque at hip
 

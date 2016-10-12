@@ -3,7 +3,7 @@
            ra, radot, raddot] = unpack(optimal, sp);
 [c, ceq] = constraints(optimal, sp);
 
-% Calculate leg lengths and angles
+% Calculate leg lengths
 r = sqrt((x - xtoe).^2 + y.^2);
 
 % Discretize the times for the first phase

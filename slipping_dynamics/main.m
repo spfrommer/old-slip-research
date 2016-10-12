@@ -54,19 +54,18 @@ if GEN_COSTS
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
 end
 
-
 numBest = 1;
 bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
 for i = 1:1
-    x0 = MinMaxCheck(lb, ub, ones(numVars, 1));
+    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.9);
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
           any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...
           any(isinf(ci)) || any(isinf(ceqi)) || any(any(isinf(cjaci))) || any(any(isinf(ceqjaci)))
         fprintf('Regenerating initial guess...\n');
-        x0 = MinMaxCheck(lb, ub, rand(numVars, 1) * 2);
+        x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * rand());
         [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     end
     
@@ -91,6 +90,8 @@ fprintf('Finished finding feasible trajectories in %f seconds\n', toc);
 fprintf('Best trajectory has act cost of: %f\n', bestCosts);
 tic
 
+%bestTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.7);
+
 optimalTrajs = zeros(numVars, numBest);
 optimalCosts = zeros(1, numBest);
 
@@ -113,4 +114,5 @@ for i = 1:numBest
 end
 
 fprintf('Finished optimizing in %f seconds\n', toc);
+optimal = optimalTrajs(:, 1);
 visualize
