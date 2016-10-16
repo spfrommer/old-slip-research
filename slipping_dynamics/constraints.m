@@ -51,10 +51,11 @@ function [ c, ceq ] = constraints( funparams, sp )
             % The state at the beginning of the time interval
             stateI = stateN;
             % What the state should be at the end of the time interval
-            stateN = [xtoe(ps+i); x(ps+i);  xdot(ps+i); ...
-                      y(ps+i);    ydot(ps+i);    ra(ps+i); radot(ps+i)];
+            stateN = [xtoe(ps+i); x(ps+i);    xdot(ps+i); ...
+                      y(ps+i);    ydot(ps+i); ra(ps+i);   radot(ps+i)];
             % The state derivative at the beginning of the time interval
             statedotI = statedotN;
+            % Some calculated variables at the beginning of the interval
             compvarsI = compvarsN;
             % The state derivative at the end of the time interval
             [statedotN, compvarsN] = ...
@@ -71,10 +72,19 @@ function [ c, ceq ] = constraints( funparams, sp )
                     [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
                      -compvarsI.grf];
         end
-        % Constrain the length of the leg at the end position
-        % No ground reaction force constraint at end
-        phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
+        
+        if p == size(sp.phases, 1)
+            % Constrain the length of the leg at the end position
+            % Since it's the end of the past phase, add grf constraint
+            phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
+                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -compvarsI.grf];
+        else 
+            % Constrain the length of the leg at the end position
+            % No ground reaction force constraint (this will be handled in
+            % transition equality constraints)
+            phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
                 [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -1];
+        end
     end
     
     c = phaseIC;
@@ -83,7 +93,7 @@ function [ c, ceq ] = constraints( funparams, sp )
     %ceq = [ceq; xtoe(1)-0.1; x(1)-0.1; xdot(1); y(1)-1; ...
     %            ydot(1); ra(1) - 1; radot(1)];
     r1 =  sqrt((x(1) - xtoe(1))^2 + y(1)^2);
-    ceq = [ceq; x(1) - 0.1; xdot(1); ydot(1); ra(1) - r1; radot(1)];
+    ceq = [ceq; x(1) - 0.4; xdot(1); ydot(1); ra(1) - r1; radot(1)];
     % Add lastphase end constraints
     ceq = [ceq; x(end) - 3];
 end
