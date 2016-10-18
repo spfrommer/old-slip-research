@@ -77,7 +77,7 @@ function [ c, ceq ] = constraints( funparams, sp )
             % Constrain the length of the leg at the end position
             % Since it's the end of the past phase, add grf constraint
             phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
-                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -compvarsI.grf];
+                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -compvarsN.grf];
         else 
             % Constrain the length of the leg at the end position
             % No ground reaction force constraint (this will be handled in
