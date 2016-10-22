@@ -3,7 +3,7 @@ function [ statedot, compvars ] = dynamics( state, raddot, sp )
     [xtoe, x, xdot, y, ydot, ra, radot] = deal(stateCell{:});
     
     r = sqrt((x - xtoe)^2 + y^2);
-    rdot = ((x-xtoe)*(xdot)+y*ydot)/(r);
+    rdot = ((x-xtoe)*(xdot) + y*ydot) / (r);
     fs = sp.spring * (ra - r) + sp.damp * (radot - rdot);
 
     xddot = fs * (x - xtoe) / (sp.masship * r);
