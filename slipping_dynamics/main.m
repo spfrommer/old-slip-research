@@ -12,6 +12,8 @@ cOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'SpecifyConstraintGradient', true, ...
                        'SpecifyObjectiveGradient', true, ...
                        'ConstraintTolerance', 1e-6, ...
+                       'CheckGradients', false, ...
+                       'HonorBounds', true, ...
                        'FiniteDifferenceType', 'forward');
 % Options for optimizing the actual cost function
 aOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
@@ -22,6 +24,8 @@ aOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'SpecifyConstraintGradient', true, ...
                        'SpecifyObjectiveGradient', true, ...
                        'ConstraintTolerance', 1e-6, ...
+                       'CheckGradients', false, ...
+                       'HonorBounds', true, ...
                        'FiniteDifferenceType', 'forward');
 % No linear inequality or equality constraints
 A = [];
@@ -38,13 +42,16 @@ numVars = size(sp.phases, 1) * 2 - 1 + ...
 funparams = conj(sym('x', [1 numVars], 'real')');
 
 if GEN_CONSTRAINTS
+    fprintf('Generating constraints...\n');
     [c, ceq] = constraints(funparams, sp);
     cjac = jacobian(c, funparams).';
     ceqjac = jacobian(ceq, funparams).';
     constraintsFun = matlabFunction(c, ceq, cjac, ceqjac, 'Vars', {funparams});
+    fprintf('Done generating constraints...\n');
 end
 
 if GEN_COSTS
+    fprintf('Generating costs...\n');
     ccost = constcost(funparams, sp);
     ccostjac = jacobian(ccost, funparams).';
     ccostFun = matlabFunction(ccost, ccostjac, 'Vars', {funparams});
@@ -52,6 +59,7 @@ if GEN_COSTS
     acost = actcost(funparams, sp);
     acostjac = jacobian(acost, funparams).';
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
+    fprintf('Done generating costs...\n');
 end
 
 numBest = 1;
@@ -59,7 +67,14 @@ bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
 for i = 1:1
-    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.9);
+    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.75);
+    x0(6:15) = 0.6;
+    x0(16:25) = 2.3;
+    x0(26:35) = 3.1;
+    x0(36:45) = 0.6;
+    x0(46:55) = 2.3;
+    x0(56:65) = 3.1;
+    %x0 = MinMaxCheck(lb, ub, rand(numVars, 1));
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
           any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...
@@ -90,7 +105,13 @@ fprintf('Finished finding feasible trajectories in %f seconds\n', toc);
 fprintf('Best trajectory has act cost of: %f\n', bestCosts);
 tic
 
-%bestTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.7);
+bestTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.5);
+bestTrajs(6:15, i) = 0.4;
+bestTrajs(16:25, i) = 2.1;
+bestTrajs(26:35, i) = 3;
+bestTrajs(36:45, i) = 0.4;
+bestTrajs(46:55, i) = 2.1;
+bestTrajs(56:65, i) = 3;
 
 optimalTrajs = zeros(numVars, numBest);
 optimalCosts = zeros(1, numBest);
