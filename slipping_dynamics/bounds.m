@@ -3,6 +3,8 @@ stanceTimeMin      = sp.minStanceTime;
 stanceTimeMax      = sp.maxStanceTime;
 flightTimeMin      = sp.minFlightTime;
 flightTimeMax      = sp.maxFlightTime;
+minXtoedot         = -Inf;
+maxXtoedot         = Inf;
 minX               = -Inf;
 maxX               = Inf;
 minXdot            = -Inf;
@@ -17,6 +19,8 @@ minRadot           = -Inf;
 maxRadot           = Inf;
 minRaddot          = sp.minraddot;
 maxRaddot          = sp.maxraddot;
+minTorque          = sp.mintorque;
+maxTorque          = sp.maxtorque;
 
 minXtoe = [];
 maxXtoe = [];
@@ -42,17 +46,17 @@ flightTimeVars = ones(size(sp.phases, 1) - 1, 1);
 gridVars = ones(sp.gridn * size(sp.phases, 1), 1);
 
 lb = [stanceTimeVars * stanceTimeMin; flightTimeVars * flightTimeMin;
-      minXtoe;
+      minXtoe;                  gridVars * minXtoedot;
       gridVars * minX;          gridVars * minXdot;
       gridVars * minY;          gridVars * minYdot;
       gridVars * minRa;         gridVars * minRadot;
-      gridVars * minRaddot];
+      gridVars * minRaddot;     gridVars * minTorque];
   
 ub = [stanceTimeVars * stanceTimeMax; flightTimeVars * flightTimeMax;
-      maxXtoe;
-      gridVars*maxX;      gridVars*maxXdot;
-      gridVars*maxY;      gridVars*maxYdot;
-      gridVars*maxRa;     gridVars*maxRadot;
-      gridVars*maxRaddot];
+      maxXtoe;                  gridVars * maxXtoedot;
+      gridVars * maxX;          gridVars * maxXdot;
+      gridVars * maxY;          gridVars * maxYdot;
+      gridVars * maxRa;         gridVars * maxRadot;
+      gridVars * maxRaddot;     gridVars * maxTorque];
 end
 

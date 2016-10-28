@@ -1,6 +1,6 @@
 % Unpack the vector
-[ stanceT, flightT, xtoe, x, xdot, y, ydot, ...
-           ra, radot, raddot] = unpack(optimal, sp);
+[ stanceT, flightT, xtoe, xtoedot, x, xdot, y, ydot, ...
+           ra, radot, raddot, torque] = unpack(optimal, sp);
 [c, ceq] = constraints(optimal, sp);
 
 % Calculate leg lengths
