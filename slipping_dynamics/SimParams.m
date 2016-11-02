@@ -15,7 +15,7 @@ classdef SimParams < handle
         friction = 0.05;     
         dt = 0.01;          % Time step for visualization
 
-        minStanceTime = 0.5;    % Minimum stance phase time
+        minStanceTime = 0.1;    % Minimum stance phase time
         maxStanceTime = 5;      % Maximum stance phase time
         minFlightTime = 0;      % Minimum flight phase time
         maxFlightTime = 5;      % Maximum flight phase time

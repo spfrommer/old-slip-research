@@ -67,7 +67,7 @@ bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
 for i = 1:1
-    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.85);
+    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.1);
     %x0(6:15) = 0.6;
     %x0(16:25) = 2.3;
     %x0(26:35) = 3.1;
