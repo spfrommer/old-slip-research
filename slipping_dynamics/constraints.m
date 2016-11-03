@@ -96,7 +96,7 @@ function [ c, ceq ] = constraints( funparams, sp )
     %ceq = [ceq; xtoe(1)-0.1; x(1)-0.1; xdot(1); y(1)-1; ...
     %            ydot(1); ra(1) - 1; radot(1)];
     r1 =  sqrt((x(1) - xtoe(1))^2 + y(1)^2);
-    ceq = [ceq; x(1) - 0.5; xdot(1); ydot(1); ra(1) - r1; radot(1)];
+    ceq = [ceq; x(1) - 0.5; xdot(1); xtoedot(1); ydot(1); ra(1) - r1; radot(1)];
     % Add lastphase end constraints
     ceq = [ceq; x(end) - 1.5; xtoe(end) - 1.5];
 end

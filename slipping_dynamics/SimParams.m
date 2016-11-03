@@ -19,10 +19,10 @@ classdef SimParams < handle
         maxStanceTime = 5;      % Maximum stance phase time
         minFlightTime = 0;      % Minimum flight phase time
         maxFlightTime = 5;      % Maximum flight phase time
-        minraddot = -1;         % Minimum second derivative of actuated length
-        maxraddot = 1;          % Maximum second derivative of actuated length
-        mintorque = -1;         % Minimum torque at hip
-        maxtorque = 1;          % Maximum torque at hip
+        minraddot = -10;         % Minimum second derivative of actuated length
+        maxraddot = 10;          % Maximum second derivative of actuated length
+        mintorque = 0;         % Minimum torque at hip
+        maxtorque = 0;          % Maximum torque at hip
 
         minlen = 0.5;           % Minimum length of the leg (m)
         maxlen = 1;             % Maximum length of the leg (m)
