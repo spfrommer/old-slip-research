@@ -11,6 +11,7 @@ function [ cost ] = actcost( funparams, sp )
     epsilon = 0.001;
     % Actually doesn't take into account time (included in later summation)
     workRa = (sqrt((fs.*radot).^2 + epsilon^2) - epsilon);
+    workRa = workRa .* kron(stanceT./sp.gridn, ones(sp.gridn, 1));
     
     angles = atan2(y, x - xtoe);
     angleShift = [angles(1); angles(1 : end-1)];
@@ -19,12 +20,6 @@ function [ cost ] = actcost( funparams, sp )
     angleDeltas(remInd) = [];
     torque(remInd) = [];
     workAng = sqrt((torque.*angleDeltas).^2 + epsilon^2) - epsilon;
-    
-    cost = 0;
-    for i = 1 : phaseN
-        dt = stanceT(i) / sp.gridn;
-        cost = cost + sum(workRa(sp.gridn * (i-1) + 1 : sp.gridn * i)) * dt;
-        cost = cost + sum(workAng);
-    end
+    cost = sum(workRa) + sum(workAng);
 end
 
