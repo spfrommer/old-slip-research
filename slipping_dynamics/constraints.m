@@ -1,6 +1,6 @@
 function [ c, ceq ] = constraints( funparams, sp )
     % Phase inequality constraints
-    phaseIC = sym('pic', [1, 3*sp.gridn*size(sp.phases, 1)])';
+    phaseIC = sym('pic', [1, 4*sp.gridn*size(sp.phases, 1)])';
      
     % Phase equality constraints
     phaseEC = sym('pec', [1, 8*(sp.gridn-1)*size(sp.phases, 1)])';
@@ -45,7 +45,7 @@ function [ c, ceq ] = constraints( funparams, sp )
         % Offset in the equality parameter vector due to phase
         pecOffset = 8 * (sp.gridn - 1) * (p - 1);
         % Offset in the inequality parameter vector due to phase
-        picOffset = 3 * (sp.gridn) * (p - 1);
+        picOffset = 4 * (sp.gridn) * (p - 1);
         
         [statedotN, compvarsN] = dynamics(stateN, raddot(ps), ...
                                           torque(ps), sp, phaseStr);
@@ -64,29 +64,30 @@ function [ c, ceq ] = constraints( funparams, sp )
                 dynamics(stateN, raddot(ps+i), torque(ps+i), sp, phaseStr);
 
             % The end position of the time interval calculated using quadrature
-            endState = stateI + dt * (statedotI + statedotN) / 2;
-            %endState = stateI + dt * statedotN;
+            %endState = stateI + dt * (statedotI + statedotN) / 2;
+            endState = stateI + dt * statedotN;
             
             % Constrain the end state of the current time interval to be
             % equal to the starting state of the next time interval
             phaseEC(pecOffset+(i-1)*8+1:pecOffset+i*8) = stateN - endState;
             % Constrain the length of the leg, grf, and body y pos
-            phaseIC(picOffset+(i-1)*3+1 : picOffset+i*3) = ...
+            phaseIC(picOffset+(i-1)*4+1 : picOffset+i*4) = ...
                     [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
-                     -compvarsI.grf];
+                     -compvarsI.grf; compvarsI.grf - sp.maxgrf];
         end
         
         if p == size(sp.phases, 1)
             % Constrain the length of the leg at the end position
-            % Since it's the end of the past phase, add grf constraint
-            phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
-                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -compvarsN.grf];
+            % Since it's the end of the last phase, add grf constraint
+            phaseIC(picOffset+(sp.gridn-1)*4+1:picOffset+sp.gridn*4) = ...
+                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; ...
+                -compvarsN.grf; compvarsN.grf - sp.maxgrf];
         else 
             % Constrain the length of the leg at the end position
             % No ground reaction force constraint (this will be handled in
             % transition equality constraints)
-            phaseIC(picOffset+(sp.gridn-1)*3+1:picOffset+sp.gridn*3) = ...
-                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -1];
+            phaseIC(picOffset+(sp.gridn-1)*4+1:picOffset+sp.gridn*4) = ...
+                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -1; -1];
         end
     end
     
@@ -98,5 +99,5 @@ function [ c, ceq ] = constraints( funparams, sp )
     r1 =  sqrt((x(1) - xtoe(1))^2 + y(1)^2);
     ceq = [ceq; x(1) - 0.5; xdot(1); xtoedot(1); ydot(1); ra(1) - r1; radot(1)];
     % Add lastphase end constraints
-    ceq = [ceq; x(end) - 1.5; xtoe(end) - 1.5];
+    ceq = [ceq; x(end) - 2.1; xtoe(end) - 2.1];
 end
