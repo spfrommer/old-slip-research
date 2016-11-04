@@ -56,7 +56,7 @@ if GEN_COSTS
     ccostjac = jacobian(ccost, funparams).';
     ccostFun = matlabFunction(ccost, ccostjac, 'Vars', {funparams});
 
-    acost = actcost(funparams, sp);
+    acost = actsqrcost(funparams, sp);
     acostjac = jacobian(acost, funparams).';
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
     fprintf('Done generating costs...\n');
@@ -67,14 +67,7 @@ bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
 for i = 1:1
-    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.4);
-    %x0(6:15) = 0.6;
-    %x0(16:25) = 2.3;
-    %x0(26:35) = 3.1;
-    %x0(66:75) = 0.6;
-    %x0(76:85) = 2.3;
-    %x0(86:95) = 3.1;
-    %x0 = MinMaxCheck(lb, ub, rand(numVars, 1));
+    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.95);
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
           any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...
@@ -90,7 +83,7 @@ for i = 1:1
                 @(x) call(constraintsFun, x, 4), cOptions);
     
     if flag > 0
-        act = actcost(feasible, sp);
+        act = actsqrcost(feasible, sp);
         [minCost, index] = max(bestCosts);
         if act < minCost
             bestCosts(index) = act;
@@ -105,20 +98,13 @@ fprintf('Finished finding feasible trajectories in %f seconds\n', toc);
 fprintf('Best trajectory has act cost of: %f\n', bestCosts);
 tic
 
-%bestTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.5);
-%x0(6:15) = 0.6;
-%x0(16:25) = 2.3;
-%x0(26:35) = 3.1;
-%x0(66:75) = 0.6;
-%x0(76:85) = 2.3;
-%x0(86:95) = 3.1;
-
 optimalTrajs = zeros(numVars, numBest);
 optimalCosts = zeros(1, numBest);
 
 for i = 1:numBest
     optimalTrajs(:, i) = bestTrajs(:, i);
-    optimalCosts(i) = actcost(optimalTrajs(:, i), sp);
+    optimalTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.5);
+    optimalCosts(i) = actsqrcost(optimalTrajs(:, i), sp);
     flag = 1;
     lastCost = Inf;
     while flag >= 0 && optimalCosts(i) - lastCost < -1e-2
@@ -129,7 +115,7 @@ for i = 1:numBest
         
         if flag >= 0
             optimalTrajs(:, i) = newOptimal;
-            optimalCosts(i) = actcost(optimalTrajs(:, i), sp);
+            optimalCosts(i) = actsqrcost(optimalTrajs(:, i), sp);
         end
     end
 end

@@ -1,4 +1,4 @@
-function [ cost ] = actcost( funparams, sp )
+function [ cost ] = actworkcost( funparams, sp )
     % Unpack the vector
     [stanceT, ~, xtoe, ~, x, xdot, y, ydot, ra, radot, ~, torque] = ...
         unpack(funparams, sp);

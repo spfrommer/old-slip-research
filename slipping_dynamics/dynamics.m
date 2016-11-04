@@ -24,7 +24,7 @@ function [ statedot, compvars ] = dynamics( state, raddot, torque, sp, curPhase 
     end
 
     statedot = [xtoedot; xtoeddot; xdot; xddot; ydot; yddot; ...
-            radot; raddot];
+                radot; raddot];
 
     compvars.r = r;
     compvars.grf = grf;
