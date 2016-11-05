@@ -1,6 +1,4 @@
-function [] = animate( times, xs, ys, phis, lens, sp )
-    dt = 0.03;
-    time = -dt;
+function [] = animate( times, xs, ys, phis, lens, sp, vp )
     % Initialize the figure
     figure(1);
     clf;
@@ -14,13 +12,16 @@ function [] = animate( times, xs, ys, phis, lens, sp )
     springPlot = plot(0, 0);
     % Initialize the hip circle fill
     hipCircle = [];
-    
-    % Draw debug text
-    timeText = text(0, 1.8, sprintf('Simulation time: %f', time), 'FontSize', 13);
-    lenText = text(0, 1.6, sprintf('len: %f', 0), 'FontSize', 13);
+
+    time = -vp.dt;
+    if vp.drawText
+        % Draw debug text
+        timeText = text(0, 1.8, sprintf('Simulation time: %f', time), 'FontSize', 13);
+        lenText = text(0, 1.6, sprintf('len: %f', 0), 'FontSize', 13);
+    end
     
     while time <= times(end)
-        time = time + dt;
+        time = time + vp.dt;
         tgreater = find(times >= time);
         if ~isempty(tgreater)
             ti = tgreater(1);
@@ -30,13 +31,14 @@ function [] = animate( times, xs, ys, phis, lens, sp )
         
         ncoils = 10;
         coilres = 2;
-        springY = linspace(0, -lens(ti), (4*coilres)*ncoils+1);
-        springX = sin(springY*2*pi*ncoils / lens(ti))*0.07;
+        springY = linspace(0, -lens(ti), 4*coilres*ncoils + 1);
+        springX = sin(springY*2*pi*ncoils / lens(ti)) * vp.springWidth;
 
         % Rotate springX and springY
         springMat = [springX; springY];
         center = repmat([0; 0], 1, length(springX));
-        R = [cos(phis(ti)-pi/2) -sin(phis(ti)-pi/2); sin(phis(ti)-pi/2) cos(phis(ti)-pi/2)];
+        R = [cos(phis(ti)-pi/2) -sin(phis(ti)-pi/2); ...
+             sin(phis(ti)-pi/2) cos(phis(ti)-pi/2)];
         rotMat = R * (springMat - center) + center;
         springX = rotMat(1,:) + xs(ti);
         springY = rotMat(2,:) + ys(ti);
@@ -55,22 +57,25 @@ function [] = animate( times, xs, ys, phis, lens, sp )
         [X,Y] = pol2cart(linspace(0, 2 * pi, 100), ones(1, 100) * 0.1);
         X = X + xs(ti);
         Y = Y + ys(ti);
-        hipCircle = fill(X, Y, [1 .5 0]);
+        hipCircle = fill(X, Y, vp.hipColor);
 
-        timeText.String = sprintf('Simulation time: %f', time);
-        lenText.String = sprintf('len: %f', lens(ti));
+        if vp.drawText
+            timeText.String = sprintf('Simulation time: %f', time);
+            lenText.String = sprintf('len: %f', lens(ti));
+        end
 
         % Set the axis
-        if sp.camFollow
-            axis([-3 + xs(ti), 3 + xs(ti), -3, 3]);
+        if vp.camFollow
+            axis(vp.camArea + [xs(ti), xs(ti), 0, 0]);
             timeText.Position(1) = xs(ti);
             lenText.Position(1) = xs(ti);
         else
-            axis([-3, 3, -3, 3]);
+            axis(vp.camArea);
         end
+        
         axis square;
         axis manual;
-        pause(sp.dt);
+        pause(vp.dt * vp.pauseFactor);
     end
 end
 
