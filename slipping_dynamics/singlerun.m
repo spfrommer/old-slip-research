@@ -37,8 +37,7 @@ Beq = [];
 
 tic
 
-numVars = size(sp.phases, 1) * 2 - 1 + ...
-          sp.gridn * size(sp.phases, 1) * 10;
+numVars = size(sp.phases, 1) * 2 - 1 + sp.gridn * size(sp.phases, 1) * 10;
 funparams = conj(sym('x', [1 numVars], 'real')');
 
 if GEN_CONSTRAINTS

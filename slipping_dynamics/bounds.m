@@ -31,12 +31,10 @@ for p=1:size(sp.phases, 1)
         minXtoe = [minXtoe; ones(sp.gridn, 1) * sp.slipPatch(1)];
         maxXtoe = [maxXtoe; ones(sp.gridn, 1) * sp.slipPatch(2)];
     elseif strcmp(phase, 'stl')
-        %minXtoe = [minXtoe; ones(sp.gridn, 1) * (sp.slipPatch(1)-0.2)];
         minXtoe = [minXtoe; ones(sp.gridn, 1) * -Inf];
         maxXtoe = [maxXtoe; ones(sp.gridn, 1) * sp.slipPatch(1)];
     elseif strcmp(phase, 'str')
         minXtoe = [minXtoe; ones(sp.gridn, 1) * sp.slipPatch(2)];
-        %maxXtoe = [maxXtoe; ones(sp.gridn, 1) * (sp.slipPatch(2)+0.2)];
         maxXtoe = [maxXtoe; ones(sp.gridn, 1) * Inf];
     end
 end

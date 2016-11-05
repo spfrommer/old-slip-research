@@ -93,11 +93,12 @@ function [ c, ceq ] = constraints( funparams, sp )
     
     c = phaseIC;
     ceq = [phaseEC; transEC];
+    
+    initialState = [xtoe(1); xtoedot(1); x(1);  xdot(1);   ...
+                  y(1);    ydot(1);    ra(1); radot(1)];
+              
     % Add first phase start constraints
-    %ceq = [ceq; xtoe(1)-0.1; x(1)-0.1; xdot(1); y(1)-1; ...
-    %            ydot(1); ra(1) - 1; radot(1)];
-    r1 =  sqrt((x(1) - xtoe(1))^2 + y(1)^2);
-    ceq = [ceq; x(1) - 0.5; xdot(1); xtoedot(1); ydot(1); ra(1) - r1; radot(1)];
-    % Add lastphase end constraints
-    ceq = [ceq; x(end) - 2.1; xtoe(end) - 2.1];
+    ceq = [ceq; initialState - sp.initialState];
+    % Add last phase end constraints
+    ceq = [ceq; x(end) - sp.finalProfileX; xtoe(end) - sp.finalProfileX];
 end

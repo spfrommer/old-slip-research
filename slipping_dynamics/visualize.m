@@ -4,6 +4,7 @@
 [c, ceq] = constraints(optimal, sp);
 
 vp = VisParams();
+vp.interpolate = false;
 
 % Calculate leg lengths
 r = sqrt((x - xtoe).^2 + y.^2);

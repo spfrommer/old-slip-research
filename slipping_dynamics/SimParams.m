@@ -2,8 +2,14 @@ classdef SimParams < handle
     properties
         % Order of phases (sli=slip, stl=stick left side of patch, str =
         % stick right side of patch
-        phases = ['sli'; 'stl'; 'str']; 
-        slipPatch = [0 2];     % The region of slippery terrain
+        phases
+        % The region of slippery terrain
+        slipPatch
+        % The initial state of the SLIP over the ice
+        initialState
+        % The final x position of the toe and the hip
+        finalProfileX
+
         gridn = 10;            % Number of grid points during stance phase
         masship = 1;           % Mass of body in kilograms
         masstoe = 0.1;         % Mass of the toe in kilograms
@@ -11,8 +17,8 @@ classdef SimParams < handle
         damp = 0.5;            % Damping coefficient
         gravity = 1;           % Gravity
         % Friction coefficient between toe and ground on slippery surfaces
-        friction = 0.05;     
-
+        friction = 0.05;
+        
         minStanceTime = 0.1;   % Minimum stance phase time
         maxStanceTime = 3;     % Maximum stance phase time
         minFlightTime = 0;     % Minimum flight phase time
@@ -29,6 +35,18 @@ classdef SimParams < handle
     end
     
     methods
+        function obj = SimParams(phases, slipPatch, initialState, finProfX)
+            if nargin == 0
+                phases = [];
+                slipPatch = [];
+                initialState = [];
+                finProfX = 0;
+            end
+            obj.phases = phases;
+            obj.slipPatch = slipPatch;
+            obj.initialState = initialState;
+            obj.finalProfileX = finProfX;
+        end
     end
 end
 
