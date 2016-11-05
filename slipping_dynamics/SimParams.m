@@ -15,10 +15,10 @@ classdef SimParams < handle
         friction = 0.05;     
         dt = 0.01;          % Time step for visualization
 
-        minStanceTime = 0.5;    % Minimum stance phase time
-        maxStanceTime = 10;     % Maximum stance phase time
+        minStanceTime = 0.1;    % Minimum stance phase time
+        maxStanceTime = 3;     % Maximum stance phase time
         minFlightTime = 0;      % Minimum flight phase time
-        maxFlightTime = 10;     % Maximum flight phase time
+        maxFlightTime = 3;     % Maximum flight phase time
         minraddot = -1;         % Minimum second derivative of actuated length
         maxraddot = 1;          % Maximum second derivative of actuated length
         mintorque = -1;         % Minimum torque at hip

@@ -64,8 +64,8 @@ function [ c, ceq ] = constraints( funparams, sp )
                 dynamics(stateN, raddot(ps+i), torque(ps+i), sp, phaseStr);
 
             % The end position of the time interval calculated using quadrature
-            %endState = stateI + dt * (statedotI + statedotN) / 2;
-            endState = stateI + dt * statedotN;
+            endState = stateI + dt * (statedotI + statedotN) / 2;
+            %endState = stateI + dt * statedotN;
             
             % Constrain the end state of the current time interval to be
             % equal to the starting state of the next time interval

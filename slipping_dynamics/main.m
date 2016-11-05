@@ -67,7 +67,7 @@ bestCosts = inf(1, numBest);
 bestTrajs = zeros(numVars, numBest);
 
 for i = 1:1
-    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.95);
+    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.7);
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
           any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...
@@ -103,7 +103,7 @@ optimalCosts = zeros(1, numBest);
 
 for i = 1:numBest
     optimalTrajs(:, i) = bestTrajs(:, i);
-    optimalTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.5);
+    %optimalTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.5);
     optimalCosts(i) = actsqrcost(optimalTrajs(:, i), sp);
     flag = 1;
     lastCost = Inf;
