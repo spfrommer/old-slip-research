@@ -46,7 +46,7 @@ if vp.interpolate
 end
 phi = atan2(y, x - xtoe);
 
-fig = figure(1);
+fig = figure();
 
 clf;
 set(fig, 'Position', [100, 200, 600, 550]);
@@ -56,7 +56,7 @@ toolbar.HandleVisibility = 'off';
 % Read an image
 [img,map] = imread('rewind.gif');
 p = uipushtool(toolbar, 'TooltipString', 'Replay animation', ...
-      'ClickedCallback', 'animate(times, x, y, phi, r, sp, vp)');
+      'ClickedCallback', @(im, e) animate(fig, times, x, y, phi, r, sp, vp));
 icon = ind2rgb(img, map);
 p.CData = icon;
-animate(times, x, y, phi, r, sp, vp);
+animate(fig, times, x, y, phi, r, sp, vp);

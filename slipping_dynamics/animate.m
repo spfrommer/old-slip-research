@@ -1,6 +1,6 @@
-function [] = animate( times, xs, ys, phis, lens, sp, vp )
+function [] = animate( fig, times, xs, ys, phis, lens, sp, vp )
     % Initialize the figure
-    figure(1);
+    figure(fig);
     clf;
     % Make all the plots draw to the same figure
     hold on;
