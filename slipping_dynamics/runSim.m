@@ -45,8 +45,9 @@ function [ optimal, cost, flag ] = runSim( sp )
     [c, ceq] = constraints(funparams, sp);
     cjac = jacobian(c, funparams).';
     ceqjac = jacobian(ceq, funparams).';
+    fprintf('Generating constraints function...\n');
     constraintsFun = matlabFunction(c, ceq, cjac, ceqjac, 'Vars', {funparams});
-    fprintf('Done generating constraints...\n');
+    fprintf('Done with constraints...\n');
     
     
     fprintf('Generating costs...\n');
@@ -57,12 +58,12 @@ function [ optimal, cost, flag ] = runSim( sp )
     acost = actsqrcost(funparams, sp);
     acostjac = jacobian(acost, funparams).';
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
-    fprintf('Done generating costs...\n');
+    fprintf('Done with costs...\n');
     
     
     flag = -1;
     tryCount = 0;
-    while flag < 0 && tryCount < 5
+    while flag < 0 && tryCount < 3
         % Generate initial guess
         x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * rand() * 2);
         [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);

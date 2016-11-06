@@ -1,11 +1,11 @@
 function [ state ] = randState( slipPatch )
     sp = SimParams();
     % Generate random initial hip x with 0.2 meter margin from patch edges
-    x = rand() * (slipPatch(2) - 0.4) + 0.2;
+    x = rand() * (slipPatch(2) - 0.6) + 0.3;
     % Random initial hip x vel must be positive
     xdot = rand() * 0.5;
-    % Random toe x within 0.1 of hip x
-    xtoe = x + rand() * 0.2 - 0.1;
+    % Random toe x within 0.2 forward of hip x
+    xtoe = x + rand() * 0.2;
     % Toe x vel equal to hip x vel
     xtoedot = xdot;
     
