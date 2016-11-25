@@ -10,11 +10,11 @@ classdef SimParams < handle
         % The final x position of the toe and the hip
         finalProfileX
 
-        gridn = 10;            % Number of grid points during stance phase
+        gridn = 20;            % Number of grid points during stance phase
         masship = 1;           % Mass of body in kilograms
         masstoe = 0.1;         % Mass of the toe in kilograms
         spring = 20;           % Spring coefficient
-        damp = 0.5;            % Damping coefficient
+        damp = 0;            % Damping coefficient
         gravity = 1;           % Gravity
         % Friction coefficient between toe and ground on slippery surfaces
         friction = 0.05;
@@ -23,8 +23,8 @@ classdef SimParams < handle
         maxStanceTime = 2;     % Maximum stance phase time
         minFlightTime = 0;     % Minimum flight phase time
         maxFlightTime = 5;     % Maximum flight phase time
-        minraddot = -1;        % Minimum second deriv of actuated length
-        maxraddot = 1;         % Maximum second deriv of actuated length
+        minraddot = 0;         % Minimum second deriv of actuated length
+        maxraddot = 0;         % Maximum second deriv of actuated length
         mintorque = -1;        % Minimum torque at hip
         maxtorque = 1;         % Maximum torque at hip
 
