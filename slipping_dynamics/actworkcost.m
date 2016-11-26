@@ -7,16 +7,27 @@ function [ cost ] = actworkcost( funparams, sp )
     r = sqrt((x - xtoe).^2 + y.^2);
     rdot = ((x-xtoe).*(xdot)+y.*ydot)./(r);
     fs = sp.spring * (ra - r) + sp.damp * (radot - rdot);
-
+    
+    startRemInd = 1 : sp.gridn : sp.gridn * phaseN;
+    endRemInd = sp.gridn : sp.gridn : sp.gridn * phaseN;
+    
+    [fsA, fsB] = deal(fs);
+    fsA(startRemInd) = [];
+    fsB(endRemInd) = [];
+    fsCombined = (fsA + fsB) .* 0.5;
+    
+    [radotA, radotB] = deal(radot);
+    radotA(startRemInd) = [];
+    radotB(endRemInd) = [];
+    radotCombined = (radotA + radotB) .* 0.5;
+    
     epsilon = 0.001;
-    workRa = (sqrt((fs.*radot).^2 + epsilon^2) - epsilon);
-    workRa = workRa .* kron(stanceT./sp.gridn, ones(sp.gridn, 1));
+    workRa = (sqrt((fsCombined.*radotCombined).^2 + epsilon^2) - epsilon);
+    workRa = workRa .* kron(stanceT./sp.gridn, ones(sp.gridn - 1, 1));
     
     angles = atan2(y, x - xtoe);
     angleShift = [angles(1); angles(1 : end-1)];
     angleDeltas = angles - angleShift;
-    startRemInd = 1 : sp.gridn : sp.gridn * phaseN;
-    endRemInd = sp.gridn : sp.gridn : sp.gridn * phaseN;
     angleDeltas(startRemInd) = [];
     [torqueA,torqueB] = deal(torque);
     torqueA(startRemInd) = [];
@@ -26,6 +37,7 @@ function [ cost ] = actworkcost( funparams, sp )
     workAng = sqrt((torqueCombined.*angleDeltas).^2 + epsilon^2) - epsilon;
     cost = sum(workRa) + sum(workAng);
     
+    %{
     vi = sqrt(xdot(41)^2 + ydot(41)^2);
     vf = sqrt(xdot(60)^2 + ydot(60)^2);
     kei = 0.5 * sp.masship * vi^2;
@@ -39,5 +51,6 @@ function [ cost ] = actworkcost( funparams, sp )
     
     workAngPrecise = torqueCombined.*angleDeltas;
     angWorkSum = sum(workAngPrecise(39:57));
+    %}
 end
 
