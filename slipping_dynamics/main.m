@@ -1,4 +1,4 @@
-for i = 170:300
+for i = 1:300
     slipPatch = [0, 0.8 + rand() * 1];
     stateI = randState(slipPatch);
     finX = slipPatch(2) + 0.1;
@@ -14,7 +14,7 @@ for i = 170:300
     spFor = SimParams(['sli'; 'str'], slipPatch, stateI, finX);
     [ optimalF, costF, flagF ] = runSim(spFor);
     
-    fid = fopen(strcat('data/sim', num2str(i), '.txt'), 'w');
+    fid = fopen(strcat('datawork/sim', num2str(i), '.txt'), 'w');
     fprintf(fid, '%.12f,', slipPatch);
     fprintf(fid, '\n');
     fprintf(fid, '%.12f,', stateI);

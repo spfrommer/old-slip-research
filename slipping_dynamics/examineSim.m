@@ -1,5 +1,5 @@
 function [ control, predicted ] = examineSim( simNum, displayVisual )
-    fid = fopen(strcat('data/sim', num2str(simNum), '.txt'), 'r');
+    fid = fopen(strcat('datawork/sim', num2str(simNum), '.txt'), 'r');
     slipPatch = sscanf(fgetl(fid), '%f,')';
     stateI = sscanf(fgetl(fid), '%f,');
     finX = sscanf(fgetl(fid), '%f');

@@ -4,7 +4,7 @@ backwardCorrect = 0;
 forwardIncorrect = 0;
 backwardIncorrect = 0;
 
-numSims = 170;
+numSims = 100;
 
 for i = 1 : numSims
     [control, predicted] = examineSim(i, false);
