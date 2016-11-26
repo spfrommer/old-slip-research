@@ -58,12 +58,18 @@ function [ optimal, cost, flag ] = runSim( sp )
     acost = actsqrcost(funparams, sp);
     acostjac = jacobian(acost, funparams).';
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
+    
+    awcost = actworkcost(funparams, sp);
+    awcostjac = jacobian(awcost, funparams).';
+    awcostFun = matlabFunction(awcost, awcostjac, 'Vars', {funparams});
+    
     fprintf('Done with costs...\n');
     
     
     flag = -1;
     tryCount = 0;
     while flag < 0 && tryCount < 3
+        fprintf('Generating initial possible trajectory (%d)...\n', tryCount+1);
         % Generate initial guess
         x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * rand() * 2);
         [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
@@ -83,9 +89,17 @@ function [ optimal, cost, flag ] = runSim( sp )
     end
 
     if flag > 0
-        [optimal, cost, flag, ~] = ...
+        fprintf('Optimizing for torque/raddot squared...\n');
+        % Optimize for torque/raddot squared cost
+        [optimal, ~, ~, ~] = ...
             fmincon(@(x) call(acostFun, x, 2),feasible,A,B, ...
                     Aeq,Beq,lb,ub,@(x) call(constraintsFun,x,4),aOptions);
+        fprintf('Optimizing for work...\n');
+        % Optimize for minimum work
+        [optimal, cost, flag, ~] = ...
+            fmincon(@(x) call(awcostFun, x, 2),optimal,A,B, ...
+                    Aeq,Beq,lb,ub,@(x) call(constraintsFun,x,4),aOptions);
+        fprintf('Done optimizing\n');
     else
         optimal = [];
         cost = 0;
