@@ -1,4 +1,4 @@
-for i = 1:300
+for i = 217:300
     slipPatch = [0, 0.8 + rand() * 1];
     stateI = randState(slipPatch);
     finX = slipPatch(2) + 0.1;
