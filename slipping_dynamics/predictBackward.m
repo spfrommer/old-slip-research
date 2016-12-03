@@ -1,13 +1,13 @@
 function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ...
                                   slideReleaseAngle, apexHeight, fallDist, sp )
     % Assumed angle of spring during left stance for projection
-    projAngle = 0.61;
+    projAngle = 0.95;
     springEnd = sp.maxlen * cos(projAngle);
     
     % Distance behind end of spring to not swipe backwards
-    allForwardsSpringDist = 0.15;
+    allForwardsSpringDist = 0.1;
     % Minimum amount spring must be compressed at start of spring phase
-    mincomp = 0.1;
+    mincomp = 0.05;
     
     allForwardsWork = Inf;
     if xi < springEnd - allForwardsSpringDist
