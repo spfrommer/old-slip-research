@@ -1,9 +1,11 @@
-function [ work ] = predictForward( xtoei, xi, xdoti, endX, ...
+function [ work ] = predictForward( xtoei, xi, xdoti, endX, ydoti,...
                               slideReleaseAngle, apexHeight, fallDist, sp)
     % ---------Two-phase step sequence (slip to right stick)---------
     
-    % Time to fall from apex height to minimum height
-    tFall = sqrt(2 * fallDist / sp.gravity);
+    % Time to fall from apex height to minimum height (reflect ydoti to
+    % account for spring rebound)
+    tRoots = roots([-0.5 * sp.gravity, abs(ydoti), fallDist]);
+    tFall = max(tRoots);
     
     % Slip phase calculations
     ff = sp.gravity * (sp.masship + sp.masstoe) * sp.friction;

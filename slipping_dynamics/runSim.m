@@ -65,7 +65,6 @@ function [ optimal, cost, flag ] = runSim( sp )
     
     fprintf('Done with costs...\n');
     
-    
     flag = -1;
     tryCount = 0;
     while flag < 0 && tryCount < 3

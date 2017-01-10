@@ -1,7 +1,8 @@
-GEN_CONSTRAINTS = false;
-GEN_COSTS = false;
+GEN_CONSTRAINTS = true;
+GEN_COSTS = true;
 
-sp = SimParams();
+sp = SimParams(['str'], [0,1], [1.1; 0; 1.1-cosd(45); 0; ...
+                                sind(45); 0; 1; 0], 1.1);
 
 % Options for optimizing the constant cost function
 cOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
@@ -29,7 +30,7 @@ aOptions = optimoptions(@fmincon, 'TolFun', 0.00000001, ...
                        'FiniteDifferenceType', 'forward');
 % No linear inequality or equality constraints
 A = [];
-b = [];
+B = [];
 Aeq = [];
 Beq = [];
 % Set up the bounds
@@ -58,15 +59,19 @@ if GEN_COSTS
     acost = actsqrcost(funparams, sp);
     acostjac = jacobian(acost, funparams).';
     acostFun = matlabFunction(acost, acostjac, 'Vars', {funparams});
+    
+    awcost = actworkcost(funparams, sp);
+    awcostjac = jacobian(awcost, funparams).';
+    awcostFun = matlabFunction(awcost, awcostjac, 'Vars', {funparams});
     fprintf('Done generating costs...\n');
 end
 
-numBest = 1;
-bestCosts = inf(1, numBest);
-bestTrajs = zeros(numVars, numBest);
-
-for i = 1:1
-    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.7);
+flag = -1;
+tryCount = 0;
+while flag < 0 && tryCount < 3
+    fprintf('Generating initial possible trajectory (%d)...\n', tryCount+1);
+    % Generate initial guess
+    x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * rand() * 2);
     [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     while any(imag(ci))  || any(imag(ceqi))  || any(any(imag(cjaci)))  || any(any(imag(ceqjaci)))  || ...
           any(isnan(ci)) || any(isnan(ceqi)) || any(any(isnan(cjaci))) || any(any(isnan(ceqjaci))) || ...
@@ -75,50 +80,31 @@ for i = 1:1
         x0 = MinMaxCheck(lb, ub, ones(numVars, 1) * rand());
         [ci, ceqi, cjaci, ceqjaci] = constraintsFun(x0);
     end
-    
+
     % Find any feasible trajectory
     [feasible, ~, flag, ~] = ...
-        fmincon(@(x) call(ccostFun, x, 2),x0,A,b,Aeq,Beq,lb,ub, ...
+        fmincon(@(x) call(ccostFun, x, 2),x0,A,B,Aeq,Beq,lb,ub, ...
                 @(x) call(constraintsFun, x, 4), cOptions);
-    
-    if flag > 0
-        act = actsqrcost(feasible, sp);
-        [minCost, index] = max(bestCosts);
-        if act < minCost
-            bestCosts(index) = act;
-            bestTrajs(:, index) = feasible;
-        end
-    else
-        fprintf('Exited with non-positive flag: %d\n', flag);
-    end
+    tryCount = tryCount + 1;
 end
 
-fprintf('Finished finding feasible trajectories in %f seconds\n', toc);
-fprintf('Best trajectory has act cost of: %f\n', bestCosts);
-tic
-
-optimalTrajs = zeros(numVars, numBest);
-optimalCosts = zeros(1, numBest);
-
-for i = 1:numBest
-    optimalTrajs(:, i) = bestTrajs(:, i);
-    %optimalTrajs(:, i) = MinMaxCheck(lb, ub, ones(numVars, 1) * 0.5);
-    optimalCosts(i) = actsqrcost(optimalTrajs(:, i), sp);
-    flag = 1;
-    lastCost = Inf;
-    while flag >= 0 && optimalCosts(i) - lastCost < -1e-2
-        lastCost = optimalCosts(i);
-        [newOptimal, ~, flag, ~] = ...
-            fmincon(@(x) call(acostFun, x, 2),optimalTrajs(:,i),A,b, ...
-                    Aeq,Beq,lb,ub,@(x) call(constraintsFun,x,4),aOptions);
-        
-        if flag >= 0
-            optimalTrajs(:, i) = newOptimal;
-            optimalCosts(i) = actsqrcost(optimalTrajs(:, i), sp);
-        end
-    end
+if flag > 0
+    fprintf('Optimizing for torque/raddot squared...\n');
+    % Optimize for torque/raddot squared cost
+    [optimal, ~, ~, ~] = ...
+        fmincon(@(x) call(acostFun, x, 2),feasible,A,B, ...
+                Aeq,Beq,lb,ub,@(x) call(constraintsFun,x,4),aOptions);
+    fprintf('Optimizing for work...\n');
+    % Optimize for minimum work
+    [optimal, cost, flag, ~] = ...
+        fmincon(@(x) call(awcostFun, x, 2),optimal,A,B, ...
+                Aeq,Beq,lb,ub,@(x) call(constraintsFun,x,4),aOptions);
+    fprintf('Done optimizing\n');
+else
+    optimal = [];
+    cost = 0;
+    fprintf('Exited with non-positive flag: %d\n', flag);
 end
 
 fprintf('Finished optimizing in %f seconds\n', toc);
-optimal = optimalTrajs(:, 1);
 visualize
