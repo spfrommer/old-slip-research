@@ -1,4 +1,4 @@
-function [ control ] = predict( sp )
+function [ control, workForward, workBackward ] = predict( sp )
     xtoei = sp.initialState(1);
     xi = sp.initialState(3);
     xdoti = sp.initialState(4);

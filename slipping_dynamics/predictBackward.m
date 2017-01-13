@@ -1,7 +1,7 @@
 function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ydoti, ...
                                   slideReleaseAngle, apexHeight, fallDist, sp )
     % Assumed angle of spring during left stance for projection
-    projAngle = 0.8;
+    projAngle = 1;
     springEnd = sp.maxlen * cos(projAngle);
     
     % Distance behind end of spring to not swipe backwards
@@ -80,8 +80,7 @@ function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ydoti, ...
     if allForwardsWork == Inf
         % Time to fall from apex height to minimum height (reflect ydoti to
         % account for spring rebound)
-        tRoots = roots([-0.5 * sp.gravity, abs(ydoti), fallDist]);
-        tFall = max(tRoots);
+        tFall = max(roots([-0.5 * sp.gravity, abs(ydoti), fallDist]));
         
         % Slip phase calculations
         ff = sp.gravity * (sp.masship + sp.masstoe) * sp.friction;
@@ -99,10 +98,19 @@ function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ydoti, ...
         % The sliding mass velocity after release
         xdotfsr = sign(kf) * sqrt(2 * abs(kf) / sp.masship);
         
+        % ydot at start of second stance phase
+        ydotsp2i = ydoti - sp.gravity*tFall;
+        % Flight time during second flight phase, assuming y velocity
+        % rebound
+        tFall = max(roots([-0.5 * sp.gravity, abs(ydotsp2i), 0]));
+        
         % X start at spring phase
         xss = xi + xdotfsr * tFall;
         xprojspring = xss * cos(projAngle);
         maxSpringWork = 0.5 * sp.spring * (springEnd - xprojspring)^2;
+        
+        % no 0.5 factor because y rebound means multiply by two
+        reflectWork = sp.masship * ydotsp2i^2 * (xss - sp.slipPatch(1) / sp.maxlen);
         
         exactXdotf = (endX - xss) / tFall;
         % Exact additional work beyond simply flipping the velocity
@@ -111,7 +119,7 @@ function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ydoti, ...
         exactWorkf = max((sp.masship / 2) * (exactXdotf^2 - xdotfsr^2), 0);
         
         if exactWorkf <= maxSpringWork
-            backwardsWork = exactWorkf + ws;
+            backwardsWork = ws + reflectWork + exactWorkf;
         else
             % Calculate velocity after spring phase
             endKe = 0.5 * sp.masship * xdotfsr^2 + maxSpringWork;
@@ -126,12 +134,12 @@ function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ydoti, ...
             rsticki = sqrt((endX - xsticki)^2 + ysticki^2);
 
             if rsticki > sp.maxlen
-                allForwardsWork = Inf;
+                backwardsWork = Inf;
             else
                 %Work done by the lift
                 wl = sp.masship * sp.gravity * (rsticki - ysticki);
 
-                allForwardsWork = ws + maxSpringWork + wl;
+                backwardsWork = ws + reflectWork + maxSpringWork + wl;
             end 
         end
     end

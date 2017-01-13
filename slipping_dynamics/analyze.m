@@ -12,8 +12,14 @@ xDots = zeros(1, numSims);
 sizes = ones(1, numSims) * 50;
 controls = zeros(1, numSims);
 
+workFors = zeros(1, numSims);
+workBacks = zeros(1, numSims);
+predictedFors = zeros(1, numSims);
+predictedBacks = zeros(1, numSims);
+
 for i = 1 : numSims
-    [control, predicted, spBack, spFor] = examineSim(i, false);
+    [control, predicted, spFor, spBack, costFor, costBack, predictedFor, ...
+        predictedBack] = examineSim(i, false);
     
     xFor = spBack.finalProfileX - spBack.initialState(3);
     xBack = spBack.initialState(3);
@@ -23,6 +29,11 @@ for i = 1 : numSims
     xBacks(i) = xBack;
     xDots(i) = xDot;
     controls(i) = max(control, 0);
+    
+    workFors(i) = costFor;
+    workBacks(i) = costBack;
+    predictedFors(i) = predictedFor;
+    predictedBacks(i) = predictedBack;
     
     if control == 1 && predicted == 1
         forwardCorrect = forwardCorrect + 1;
