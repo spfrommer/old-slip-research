@@ -47,6 +47,18 @@ classdef SimParams < handle
             obj.initialState = initialState;
             obj.finalProfileX = finProfX;
         end
+        
+        function iss = iss(obj)
+            iss = struct();
+            iss.xtoe = obj.initialState(1);
+            iss.xtoedot = obj.initialState(2);
+            iss.x = obj.initialState(3);
+            iss.xdot = obj.initialState(4);
+            iss.y = obj.initialState(5);
+            iss.ydot = obj.initialState(6);
+            iss.ra = obj.initialState(7);
+            iss.radot = obj.initialState(8);
+        end
     end
 end
 

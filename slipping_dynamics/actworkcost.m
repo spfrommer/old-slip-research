@@ -36,24 +36,4 @@ function [ cost ] = actworkcost( funparams, sp )
     
     workAng = sqrt((torqueCombined.*angleDeltas).^2 + epsilon^2) - epsilon;
     cost = sum(workRa) + sum(workAng);
-    
-    %{
-    vi = sqrt(xdot(1)^2 + ydot(1)^2);
-    vf = sqrt(xdot(10)^2 + ydot(10)^2);
-    kei = 0.5 * sp.masship * vi^2;
-    kef = 0.5 * sp.masship * vf^2;
-    pei = sp.gravity * sp.masship * y(1);
-    pef = sp.gravity * sp.masship * y(10);
-    endSpringEnergy = 0.5 * sp.spring * (ra(10)-r(10))^2;
-    ei = kei + pei;
-    ef = kef + pef + endSpringEnergy;
-    edif = ef - ei;
-    
-    workAngPrecise = torqueCombined.*angleDeltas;
-    workAngSum = sum(workAngPrecise(1:18));
-    
-    workRaPrecise = fsCombined.*radotCombined;
-    workRaPrecise = workRaPrecise .* kron(stanceT./sp.gridn, ones(sp.gridn - 1, 1));
-    workRaSum = sum(workRaPrecise(1:18));
-    %}
 end

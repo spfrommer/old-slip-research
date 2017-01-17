@@ -6,6 +6,7 @@ backwardIncorrect = 0;
 
 numSims = 200;
 
+yDots = zeros(1, numSims);
 xFors = zeros(1, numSims);
 xBacks = zeros(1, numSims);
 xDots = zeros(1, numSims);
@@ -18,36 +19,33 @@ predictedFors = zeros(1, numSims);
 predictedBacks = zeros(1, numSims);
 
 for i = 1 : numSims
-    [control, predicted, spFor, spBack, costFor, costBack, predictedFor, ...
-        predictedBack] = examineSim(i, false);
+    er = examineSim(i, false);
     
-    xFor = spBack.finalProfileX - spBack.initialState(3);
-    xBack = spBack.initialState(3);
-    xDot = spBack.initialState(4);
+    yDots(i) = er.spBack.iss().ydot;
+    xFors(i) = er.spBack.finalProfileX - er.spBack.iss().x;
+    xBacks(i) = er.spBack.iss().x;
+    xDots(i) = er.spBack.iss().xdot;
+    controls(i) = max(er.control, 0);
     
-    xFors(i) = xFor;
-    xBacks(i) = xBack;
-    xDots(i) = xDot;
-    controls(i) = max(control, 0);
+    workFors(i) = er.costFor;
+    workBacks(i) = er.costBack;
+    predictedFors(i) = er.predFor;
+    predictedBacks(i) = er.predBack;
     
-    workFors(i) = costFor;
-    workBacks(i) = costBack;
-    predictedFors(i) = predictedFor;
-    predictedBacks(i) = predictedBack;
-    
-    if control == 1 && predicted == 1
+    if er.control == 1 && er.predicted == 1
         forwardCorrect = forwardCorrect + 1;
-    elseif control == -1 && predicted == -1
+    elseif er.control == -1 && er.predicted == -1
         backwardCorrect = backwardCorrect + 1;
-    elseif control == 1 && predicted == -1
+    elseif er.control == 1 && er.predicted == -1
         forwardIncorrect = forwardIncorrect + 1;
-    elseif control == -1 && predicted == 1
+    elseif er.control == -1 && er.predicted == 1
         backwardIncorrect = backwardIncorrect + 1;
     end
 end
 
 colormap(copper);
-scatter3(xFors, xBacks, xDots, sizes, controls);
+scatter(yDots, controls);
+%scatter3(xFors, xBacks, xDots, sizes, controls);
 
 fprintf('Backward correct percent: %f\n', backwardCorrect / ...
                                 (backwardCorrect + backwardIncorrect));

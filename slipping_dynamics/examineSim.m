@@ -1,64 +1,62 @@
-function [ control, predicted, spFor, spBack, ...
-    costF, costB, predictedFor, predictedBack ] ...
-            = examineSim( simNum, displayVisual )
+function [ er ] = examineSim( simNum, displayVisual )
+    er = ExamineResults();
+        
     fid = fopen(strcat('datawork/sim', num2str(simNum), '.txt'), 'r');
     slipPatch = sscanf(fgetl(fid), '%f,')';
     stateI = sscanf(fgetl(fid), '%f,');
     finX = sscanf(fgetl(fid), '%f');
     
-    optimalB = sscanf(fgetl(fid), '%f,');
-    costB = sscanf(fgetl(fid), '%f');
+    er.optimalBack = sscanf(fgetl(fid), '%f,');
+    er.costBack = sscanf(fgetl(fid), '%f');
     flagB = sscanf(fgetl(fid), '%f');
 
-    optimalF = sscanf(fgetl(fid), '%f,');
-    costF = sscanf(fgetl(fid), '%f');
+    er.optimalFor = sscanf(fgetl(fid), '%f,');
+    er.costFor = sscanf(fgetl(fid), '%f');
     flagF = sscanf(fgetl(fid), '%f');
     
-    spBack = SimParams(['sli'; 'stl'; 'str'], slipPatch, stateI, finX);
-    spFor = SimParams(['sli'; 'str'], slipPatch, stateI, finX);
+    er.spBack = SimParams(['sli'; 'stl'; 'str'], slipPatch, stateI, finX);
+    er.spFor = SimParams(['sli'; 'str'], slipPatch, stateI, finX);
     
     if flagB >= 0 && flagF < 0
         if displayVisual
             disp('Only backwards step possible!');
         end
-        control = -1;
+        er.control = -1;
     elseif flagF >= 0 && flagB < 0
         if displayVisual
             disp('Only forwards step possible!');
         end
-         control = 1;
+        er.control = 1;
     else
-        if costB > costF
+        if er.costBack > er.costFor
             if displayVisual
                 disp('Forwards step is better!');
             end
-            control = 1;
+            er.control = 1;
         else
             if displayVisual
                 disp('Backwards step is better!');
             end
-            control = -1;
+            er.control = -1;
         end
     end
     
-    [predicted, predictedFor, predictedBack] = predict(spFor);
+    [er.predicted, er.predFor, er.predBack] = predict(er.spFor);
     
     if displayVisual
-        if predicted > 0
+        if er.predicted > 0
             disp('Forward step was predicted');
         else
             disp('Backward step was predicted');
         end
         
         if flagB >= 0
-            optimal = optimalB;
-            sp = spBack;
+            [optimal, sp] = deal(er.optimalBack, er.spBack); %#ok<ASGLU>
             visualize
         end
 
         if flagF >= 0
-            optimal = optimalF;
-            sp = spFor;
+            [optimal, sp] = deal(er.optimalFor, er.spFor); %#ok<ASGLU>
             visualize
         end
     end

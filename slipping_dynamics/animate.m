@@ -1,18 +1,74 @@
-function [] = animate( fig, times, xs, ys, phis, lens, sp, vp )
+function [] = animate( fig, times, xtoes, xs, ys, phis, lens, ...
+                       transTs, sp, vp )
     % Initialize the figure
     figure(fig);
     clf;
     % Make all the plots draw to the same figure
     hold on;
     % Draw ground
-    patch([-100 100 100 -100], [0 0 -5 -5], [0 0.5 0]);
+    patch([-100 100 100 -100], [0 0 -5 -5], [0 0.5 0], ...
+          'FaceColor', [0.05 0.2 0.05]);
+    
     % Draw ice patch
-    patch([sp.slipPatch, fliplr(sp.slipPatch)], [0 0 -0.5 -0.5], [0 0 0.5]);
+    patch([sp.slipPatch, fliplr(sp.slipPatch)], ...
+          [0 0 -0.1 -0.1], [0 0 0.5], 'FaceColor', [0.5 0.5 1]);
+    
     % Initialize the spring plot
     springPlot = plot(0, 0);
+    % Draw the path of the hip
+    if vp.showPath
+        if ~vp.interpolate
+            fprintf('Warning: to show path must interpolate first');
+        end
+        
+        selTimes = times(1:vp.pathSel:end);
+        selXs = xs(1:vp.pathSel:end);
+        selYs = ys(1:vp.pathSel:end);
+        selXtoes = xtoes(1:vp.pathSel:end);
+        
+        % Plot paths
+        for i = 1:(length(transTs)-1)
+            indices = find(selTimes >= transTs(i) & selTimes < transTs(i+1));
+            if isempty(indices)
+                continue
+            end
+            
+            % Plot path of toe during slipping phase
+            if i == 1
+                plot(selXtoes(indices), zeros(length(indices)), 'o', ...
+                 'MarkerSize', vp.markerSize, ...
+                 'MarkerEdgeColor', 'none', ...
+                 'MarkerFaceColor', vp.toeColor);
+                plot(selXtoes(1), zeros(1), 'o', ...
+                 'MarkerSize', vp.markerSize+1, ...
+                 'MarkerEdgeColor', vp.toeStartColor);
+                plot(selXtoes(1), zeros(1), 'o', ...
+                 'MarkerSize', vp.markerSize+2, ...
+                 'MarkerEdgeColor', vp.toeStartColor);
+                plot(selXtoes(indices(end)), zeros(1), 'o', ...
+                 'MarkerSize', vp.markerSize+1, ...
+                 'MarkerEdgeColor', vp.toeEndColor);
+                plot(selXtoes(indices(end)), zeros(1), 'o', ...
+                 'MarkerSize', vp.markerSize+2, ...
+                 'MarkerEdgeColor', vp.toeEndColor);
+            end
+            
+            % Plot path of hip
+            if mod(i,2)
+                color = vp.phaseColor(ceil(i / 2), :);
+            else
+                color = vp.flightColor;
+            end
+            
+            plot(selXs(indices), selYs(indices), 'o', ...
+                 'MarkerSize', vp.markerSize, ...
+                 'MarkerEdgeColor', 'none', ...
+                 'MarkerFaceColor', color);
+        end
+    end
     % Initialize the hip circle fill
     hipCircle = [];
-
+    
     time = -vp.dt;
     if vp.drawText
         % Draw debug text
@@ -30,7 +86,7 @@ function [] = animate( fig, times, xs, ys, phis, lens, sp, vp )
         end
         
         ncoils = 10;
-        coilres = 2;
+        coilres = 4;
         springY = linspace(0, -lens(ti), 4*coilres*ncoils + 1);
         springX = sin(springY*2*pi*ncoils / lens(ti)) * vp.springWidth;
 
@@ -54,25 +110,25 @@ function [] = animate( fig, times, xs, ys, phis, lens, sp, vp )
         springPlot.Color = 'k';
 
         % Draw hip/pelvis
-        [X,Y] = pol2cart(linspace(0, 2 * pi, 100), ones(1, 100) * 0.1);
+        [X,Y] = pol2cart(linspace(0, 2 * pi, 100), ...
+                         ones(1, 100) * vp.hipDiam);
         X = X + xs(ti);
         Y = Y + ys(ti);
         hipCircle = fill(X, Y, vp.hipColor);
-
+        alpha(vp.hipAlpha);
+        
         if vp.drawText
             timeText.String = sprintf('Simulation time: %f', time);
             lenText.String = sprintf('len: %f', lens(ti));
         end
 
-        % Set the axis
-        if vp.camFollow
-            axis(vp.camArea + [xs(ti), xs(ti), 0, 0]);
-            timeText.Position(1) = xs(ti);
-            lenText.Position(1) = xs(ti);
-        else
-            axis(vp.camArea);
-        end
-        
+        camWidth = sp.slipPatch(2) - sp.slipPatch(1) + vp.camMargin;
+        camArea = [sp.slipPatch(1) - vp.camMargin / 2, ...
+                   sp.slipPatch(2) + vp.camMargin / 2, ...
+                   sp.maxlen / 2 - camWidth / 2, ...
+                   sp.maxlen / 2 + camWidth / 2];
+        axis(camArea);
+        set(gca,'visible','off');
         axis square;
         axis manual;
         pause(vp.dt * vp.pauseFactor);

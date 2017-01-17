@@ -3,8 +3,12 @@
            ra, radot, raddot, torque] = unpack(optimal, sp);
 [c, ceq] = constraints(optimal, sp);
 
+% Make vector of times of each phase transition
+transT(1:2:length(stanceT)*2) = stanceT;
+transT(2:2:length(flightT)*2) = flightT;
+transT = [0, cumsum(transT)];
+
 vp = VisParams();
-vp.interpolate = false;
 
 % Calculate leg lengths
 r = sqrt((x - xtoe).^2 + y.^2);
@@ -41,6 +45,7 @@ if vp.interpolate
     xtoe  = interp1(times, xtoe, 0:vp.dt:times(end), 'linear');
     x     = interp1(times, x,    0:vp.dt:times(end), 'linear');
     y     = interp1(times, y,    0:vp.dt:times(end), 'linear');
+    % TODO: fix r interpolation between phase transitions
     r     = interp1(times, r,    0:vp.dt:times(end), 'linear');
     times = 0:vp.dt:times(end);
 end
@@ -56,7 +61,8 @@ toolbar.HandleVisibility = 'off';
 % Read an image
 [img,map] = imread('rewind.gif');
 p = uipushtool(toolbar, 'TooltipString', 'Replay animation', ...
-      'ClickedCallback', @(im, e) animate(fig, times, x, y, phi, r, sp, vp));
+      'ClickedCallback', @(im, e) animate(fig, times, xtoe, x, y, ...
+                                          phi, r, transT, sp, vp));
 icon = ind2rgb(img, map);
 p.CData = icon;
-animate(fig, times, x, y, phi, r, sp, vp);
+animate(fig, times, xtoe, x, y, phi, r, transT, sp, vp);
