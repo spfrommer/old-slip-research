@@ -1,7 +1,7 @@
 function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ydoti, ...
                                   slideReleaseAngle, apexHeight, fallDist, sp )
     % Assumed angle of spring during left stance for projection
-    projAngle = 1;
+    projAngle = pi/3;
     springEnd = sp.maxlen * cos(projAngle);
     
     % Distance behind end of spring to not swipe backwards
@@ -106,10 +106,14 @@ function [ work ] = predictBackward( xtoei, xi, xdoti, endX, ydoti, ...
         
         % X start at spring phase
         xss = xi + xdotfsr * tFall;
+        yss = apexHeight - 0.5 * (sp.gravity / sp.masship) * tFall^2;
         xprojspring = xss * cos(projAngle);
         maxSpringWork = 0.5 * sp.spring * (springEnd - xprojspring)^2;
         
         % no 0.5 factor because y rebound means multiply by two
+        % This is nonsense, only reflecting component of velocity
+        % perpendicular to the leg vector (not sure how to formulate this
+        % or if it is really correct though (TODO)
         reflectWork = sp.masship * ydotsp2i^2 * (xss - sp.slipPatch(1) / sp.maxlen);
         
         exactXdotf = (endX - xss) / tFall;
