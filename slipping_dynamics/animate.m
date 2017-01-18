@@ -75,7 +75,8 @@ function [] = animate( fig, times, xtoes, xs, ys, phis, lens, ...
         timeText = text(0, 1.8, sprintf('Simulation time: %f', time), 'FontSize', 13);
         lenText = text(0, 1.6, sprintf('len: %f', 0), 'FontSize', 13);
     end
-    
+
+    has_saved = false;
     while time <= times(end)
         time = time + vp.dt;
         tgreater = find(times >= time);
@@ -132,6 +133,11 @@ function [] = animate( fig, times, xtoes, xs, ys, phis, lens, ...
         axis square;
         axis manual;
         pause(vp.dt * vp.pauseFactor);
+        
+        if ~has_saved && ~strcmp(vp.picName, 'none')
+            saveas(fig, strcat('images/', vp.picName, '.png'));
+            has_saved = true;
+        end
     end
 end
 

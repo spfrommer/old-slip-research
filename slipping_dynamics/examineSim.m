@@ -1,4 +1,10 @@
-function [ er ] = examineSim( simNum, displayVisual )
+function [ er ] = examineSim( simNum, displayVisual, picBaseName )
+    if nargin < 2
+        [displayVisual, picBaseName] = deal(false, 'none');
+    elseif nargin < 3
+        picBaseName = 'none';
+    end
+    
     er = ExamineResults();
         
     fid = fopen(strcat('datawork/sim', num2str(simNum), '.txt'), 'r');
@@ -50,11 +56,19 @@ function [ er ] = examineSim( simNum, displayVisual )
             disp('Backward step was predicted');
         end
         
+        vp = VisParams();
+        if ~strcmp(picBaseName, 'none')
+            vp.picName = strcat(picBaseName, 'b');
+        end
+        
         if flagB >= 0
             [optimal, sp] = deal(er.optimalBack, er.spBack); %#ok<ASGLU>
             visualize
         end
-
+        
+        if ~strcmp(picBaseName, 'none')
+            vp.picName = strcat(picBaseName, 'f');
+        end
         if flagF >= 0
             [optimal, sp] = deal(er.optimalFor, er.spFor); %#ok<ASGLU>
             visualize

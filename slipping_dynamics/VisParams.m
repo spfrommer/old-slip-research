@@ -22,6 +22,9 @@ classdef VisParams < handle
         showPath = true;
         % Take every nth element from time-interpolate hip positions
         pathSel = 6;
+        
+        % Filename where to save starting pic, if at all
+        picName = 'none';
     end
 end
 

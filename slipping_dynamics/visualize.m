@@ -8,8 +8,6 @@ transT(1:2:length(stanceT)*2) = stanceT;
 transT(2:2:length(flightT)*2) = flightT;
 transT = [0, cumsum(transT)];
 
-vp = VisParams();
-
 % Calculate leg lengths
 r = sqrt((x - xtoe).^2 + y.^2);
 
