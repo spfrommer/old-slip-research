@@ -4,6 +4,7 @@
 [c, ceq] = constraints(optimal, sp);
 
 % Make vector of times of each phase transition
+transT = [];
 transT(1:2:length(stanceT)*2) = stanceT;
 transT(2:2:length(flightT)*2) = flightT;
 transT = [0, cumsum(transT)];

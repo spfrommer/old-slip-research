@@ -1,4 +1,4 @@
-function [ cost ] = constcost( funparams, sp )
+function [ cost ] = constcost( ~, ~ )
     cost = sym(1);
 end
 

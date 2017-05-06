@@ -29,8 +29,24 @@ function [] = animate( fig, times, xtoes, xs, ys, phis, lens, ...
         % Plot paths
         for i = 1:(length(transTs)-1)
             indices = find(selTimes >= transTs(i) & selTimes < transTs(i+1));
+            
+            % Get color for current phase
+            if mod(i,2)
+                color = vp.phaseColor(ceil(i / 2), :);
+            else
+                color = vp.flightColor;
+            end
+            
             if isempty(indices)
-                continue
+                % If last phase, plot end position for clarity
+                if i == length(transTs) - 1
+                    plot(xs(end), ys(end), 'o', ...
+                        'MarkerSize', vp.markerSize, ...
+                        'MarkerEdgeColor', 'none', ...
+                        'MarkerFaceColor', color);
+                else
+                    continue
+                end
             end
             
             % Plot path of toe during slipping phase
@@ -54,12 +70,6 @@ function [] = animate( fig, times, xtoes, xs, ys, phis, lens, ...
             end
             
             % Plot path of hip
-            if mod(i,2)
-                color = vp.phaseColor(ceil(i / 2), :);
-            else
-                color = vp.flightColor;
-            end
-            
             plot(selXs(indices), selYs(indices), 'o', ...
                  'MarkerSize', vp.markerSize, ...
                  'MarkerEdgeColor', 'none', ...

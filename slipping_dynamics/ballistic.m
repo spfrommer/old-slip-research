@@ -1,10 +1,14 @@
 function [ xtoedotland, xland, xdotland, yland, ydotland ] = ...
-        ballistic( toState, flightTime, sp, curPhase )
+        ballistic( toState, flightTime, landPhaseStr, sp )
 
+    % Expand the important information from the takeoff state
     stateCell = num2cell(toState');
     [~, ~, x, xdot, y, ydot, ~, ~] = deal(stateCell{:});
 
-    if strcmp(curPhase, 'sli')
+    % If landing on slippery surface, initial toe velocity should be equal
+    % to hip velocity. Otherwise, the toe should stick to the ground with
+    % zero velocity
+    if strcmp(landPhaseStr, 'sli')
         xtoedotland = xdot;
     else
         xtoedotland = 0;
@@ -13,6 +17,5 @@ function [ xtoedotland, xland, xdotland, yland, ydotland ] = ...
     yland = y + ydot * flightTime - 0.5 * sp.gravity * flightTime^2;
     xdotland = xdot;
     ydotland = ydot - sp.gravity * flightTime;
-
 end
 

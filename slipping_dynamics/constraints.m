@@ -23,7 +23,7 @@ function [ c, ceq ] = constraints( funparams, sp )
         % Take off state at the end of the last phase
         if p > 1
             toState = stateN;
-            toCompvars = compvarsN;
+            toAuxvars = auxvarsN;
         end
         
         stateN = [xtoe(ps); xtoedot(ps); x(ps);  xdot(ps);   ...
@@ -34,12 +34,12 @@ function [ c, ceq ] = constraints( funparams, sp )
             rland = sqrt((x(ps) - xtoe(ps))^2 + y(ps)^2);
             
             [xtoedotland, xland, xdotland, yland, ydotland] = ...
-                ballistic(toState, flightT(p-1), sp, phaseStr);
+                ballistic(toState, flightT(p-1), phaseStr, sp);
             % Grf must equal zero at takeoff
             transEC((p-2)*8+1 : (p-1)*8) = ...
                     [xtoedotland-xtoedot(ps); xland-x(ps); ...
                     xdotland-xdot(ps); yland-y(ps); ydotland-ydot(ps); ...
-                    ra(ps) - rland; radot(ps); toCompvars.grf];
+                    ra(ps) - rland; radot(ps); toAuxvars.grf];
         end
             
         % Offset in the equality parameter vector due to phase
@@ -47,7 +47,7 @@ function [ c, ceq ] = constraints( funparams, sp )
         % Offset in the inequality parameter vector due to phase
         picOffset = 4 * (sp.gridn) * (p - 1);
         
-        [statedotN, compvarsN] = dynamics(stateN, raddot(ps), ...
+        [statedotN, auxvarsN] = dynamics(stateN, raddot(ps), ...
                                           torque(ps), sp, phaseStr);
         for i = 1 : sp.gridn - 1
             % The state at the beginning of the time interval
@@ -58,36 +58,35 @@ function [ c, ceq ] = constraints( funparams, sp )
             % The state derivative at the beginning of the time interval
             statedotI = statedotN;
             % Some calculated variables at the beginning of the interval
-            compvarsI = compvarsN;
+            auxvarsI = auxvarsN;
             % The state derivative at the end of the time interval
-            [statedotN, compvarsN] = ...
+            [statedotN, auxvarsN] = ...
                 dynamics(stateN, raddot(ps+i), torque(ps+i), sp, phaseStr);
 
             % The end position of the time interval calculated using quadrature
             endState = stateI + dt * (statedotI + statedotN) / 2;
-            %endState = stateI + dt * statedotN;
             
             % Constrain the end state of the current time interval to be
             % equal to the starting state of the next time interval
             phaseEC(pecOffset+(i-1)*8+1:pecOffset+i*8) = stateN - endState;
             % Constrain the length of the leg, grf, and body y pos
             phaseIC(picOffset+(i-1)*4+1 : picOffset+i*4) = ...
-                    [compvarsI.r - sp.maxlen; sp.minlen - compvarsI.r; ...
-                     -compvarsI.grf; compvarsI.grf - sp.maxgrf];
+                    [auxvarsI.r - sp.maxlen; sp.minlen - auxvarsI.r; ...
+                     -auxvarsI.grf; auxvarsI.grf - sp.maxgrf];
         end
         
         if p == size(sp.phases, 1)
             % Constrain the length of the leg at the end position
             % Since it's the end of the last phase, add grf constraint
             phaseIC(picOffset+(sp.gridn-1)*4+1:picOffset+sp.gridn*4) = ...
-                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; ...
-                -compvarsN.grf; compvarsN.grf - sp.maxgrf];
+                [auxvarsN.r - sp.maxlen; sp.minlen - auxvarsN.r; ...
+                -auxvarsN.grf; auxvarsN.grf - sp.maxgrf];
         else 
             % Constrain the length of the leg at the end position
             % No ground reaction force constraint (this will be handled in
             % transition equality constraints)
             phaseIC(picOffset+(sp.gridn-1)*4+1:picOffset+sp.gridn*4) = ...
-                [compvarsN.r - sp.maxlen; sp.minlen - compvarsN.r; -1; -1];
+                [auxvarsN.r - sp.maxlen; sp.minlen - auxvarsN.r; -1; -1];
         end
     end
     

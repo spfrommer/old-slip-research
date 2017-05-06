@@ -1,51 +1,34 @@
-function [ work ] = predictForward( xtoei, xi, xdoti, endX, ydoti,...
-                              slideReleaseAngle, apexHeight, fallDist, sp)
-    % ---------Two-phase step sequence (slip to right stick)---------
+function [ work ] = predictForward( xtoei, xi, xdoti, xend, ...
+                              sp, slideReleaseAngle, ...
+                              flightFactor, puxcoef, puxdotcoef)
+    f_n = sp.maxtorque / sp.maxlen - ...
+          sp.gravity * (sp.masship + sp.masstoe) * sp.friction;
+    a_t = f_n / sp.masstoe;
     
-    % Time to fall from apex height to minimum height (reflect ydoti to
-    % account for spring rebound)
-    tRoots = roots([-0.5 * sp.gravity, abs(ydoti), fallDist]);
-    tFall = max(tRoots);
-    
-    % Slip phase calculations
-    ff = sp.gravity * (sp.masship + sp.masstoe) * sp.friction;
     % The max distance the toe can slide backwards behind the body
-    dmaxbehind = min(cos(slideReleaseAngle) * sp.maxlen, ...
-                     xi - sp.slipPatch(1));
+    dmaxback = min(sin(slideReleaseAngle)*sp.maxlen, xi - sp.slipPatch(1));
     % The max distance the toe can slide backwards
-    dmax = xtoei - xi + dmaxbehind;
-
-    % The velocity that will get you right to the end point in the fall time
-    exactXdot = (endX - xi) / tFall;
-    % The amount of work required to get you right to the end point
-    exactWork = max(0.5 * sp.masship * (exactXdot^2 - xdoti^2), 0);
-    % The exact toe scrape distance necessary
-    exactD = exactWork / ff;
-   
-    % The work done by the toe scrape
-    if exactD >= dmax
-        ws = ff * dmax;
-    else
-        ws = ff * exactD;
-    end
-    % The sliding mass velocity after release
-    xdotfsr = sqrt(2 * ws / sp.masship + xdoti^2);
+    dmax = xtoei - xi + dmaxback;
     
-    % Stick phase calculations
-    % X pos after flight phase
-    xsticki = xi + xdotfsr * tFall;
-    % Y pos after flight phase
-    ysticki = apexHeight - 0.5 * (sp.gravity / sp.masship) * tFall^2;
-    % Leg length at landing
-    rsticki = sqrt((xsticki - endX)^2 + ysticki^2);
+    t_slide = sqrt(2 * dmax / a_t);
     
-    if rsticki > sp.maxlen
-        work = Inf;
-    else
-        %Work done by the lift
-        wl = sp.masship * sp.gravity * (rsticki - ysticki);
-
-        work = ws + wl;
-    end
+    slideWork = dmax * sp.maxtorque / sp.maxlen;
+    
+    % final hip x after first stance phase
+    xsf = xi + xdoti * t_slide + ...
+        0.5 * (sp.maxtorque / sp.maxlen) * t_slide^2;
+    
+    %puWork = max((0.2/0.5) * (sp.finalProfileX - xi - 0.4) ...
+    %                - (0.3/0.5) * xdoti, 0);
+    puWork = max(puxcoef * (sp.finalProfileX - xi - 0.4) ...
+                    - puxdotcoef * xdoti, 0);
+    
+    dxPu = sp.maxlen * ...
+        sqrt(1 - (1 - puWork / (sp.masship * sp.gravity * sp.maxlen))^2);
+    
+    % Virtual cost assigned to falling
+    flightWork = (xend - xsf - dxPu) * sp.gravity*sp.masship*flightFactor;
+    
+    work = slideWork + flightWork + puWork; 
 end
 

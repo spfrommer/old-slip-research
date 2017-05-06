@@ -4,7 +4,7 @@ backwardCorrect = 0;
 forwardIncorrect = 0;
 backwardIncorrect = 0;
 
-numSims = 200;
+numSims = 217;
 
 yDots = zeros(1, numSims);
 xFors = zeros(1, numSims);
@@ -18,9 +18,9 @@ workBacks = zeros(1, numSims);
 predictedFors = zeros(1, numSims);
 predictedBacks = zeros(1, numSims);
 
+forwardBetter = 0;
 for i = 1 : numSims
     er = examineSim(i, false);
-    
     yDots(i) = er.spBack.iss().ydot;
     xFors(i) = er.spBack.finalProfileX - er.spBack.iss().x;
     xBacks(i) = er.spBack.iss().x;
@@ -31,6 +31,10 @@ for i = 1 : numSims
     workBacks(i) = er.costBack;
     predictedFors(i) = er.predFor;
     predictedBacks(i) = er.predBack;
+    
+    if er.control == 1
+        forwardBetter = forwardBetter + 1;
+    end
     
     if er.control == 1 && er.predicted == 1
         forwardCorrect = forwardCorrect + 1;
@@ -43,8 +47,8 @@ for i = 1 : numSims
     end
 end
 
-colormap(copper);
-scatter(yDots, controls);
+%colormap(copper);
+%scatter(yDots, controls);
 %scatter3(xFors, xBacks, xDots, sizes, controls);
 
 fprintf('Backward correct percent: %f\n', backwardCorrect / ...

@@ -1,4 +1,4 @@
-function [ statedot, compvars ] = dynamics( state, raddot, torque, sp, curPhase )
+function [ statedot, auxvars ] = dynamics( state, raddot, torque, sp, phaseStr )
     stateCell = num2cell(state');
     [xtoe, xtoedot, x, xdot, y, ydot, ra, radot] = deal(stateCell{:});
     
@@ -16,7 +16,7 @@ function [ statedot, compvars ] = dynamics( state, raddot, torque, sp, curPhase 
     grf = fs * sphi - ft * cphi + sp.masstoe * sp.gravity;
 
     % Check if the phase should be slipping
-    if strcmp(curPhase, 'sli')
+    if strcmp(phaseStr, 'sli')
         ff = -sp.friction * tanh(xtoedot * 50) * grf;
         xtoeddot = (1/sp.masstoe) * (-fs*cphi - ft*sphi + ff);
     else
@@ -26,7 +26,7 @@ function [ statedot, compvars ] = dynamics( state, raddot, torque, sp, curPhase 
     statedot = [xtoedot; xtoeddot; xdot; xddot; ydot; yddot; ...
                 radot; raddot];
 
-    compvars.r = r;
-    compvars.grf = grf;
+    auxvars.r = r;
+    auxvars.grf = grf;
 end
 

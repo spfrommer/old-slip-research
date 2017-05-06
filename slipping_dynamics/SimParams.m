@@ -22,7 +22,7 @@ classdef SimParams < handle
         minStanceTime = 0.1;   % Minimum stance phase time
         maxStanceTime = 2;     % Maximum stance phase time
         minFlightTime = 0;     % Minimum flight phase time
-        maxFlightTime = 5;     % Maximum flight phase time
+        maxFlightTime = 10;    % Maximum flight phase time
         minraddot = -1;        % Minimum second deriv of actuated length
         maxraddot = 1;         % Maximum second deriv of actuated length
         mintorque = -1;        % Minimum torque at hip
@@ -31,7 +31,7 @@ classdef SimParams < handle
         minlen = 0.5;          % Minimum length of the leg
         maxlen = 1;            % Maximum length of the leg
         
-        maxgrf = 10;           % Maximum ground reaction force
+        maxgrf = 3;            % Maximum ground reaction force
     end
     
     methods
